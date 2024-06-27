@@ -18,6 +18,7 @@ export const ADD_USER_IMAGE = 'https://localhost:7026/api/UserImage/AddUserImage
 export const UPDATE_USEREMAIL = 'https://localhost:7026/updateUserEmail';
 export const CREATE_OUT_MESSAGES_URL = 'https://localhost:7026/api/OutMessages/create';
 export const GET_OUT_MESSAGES = 'https://localhost:7026/api/OutMessages/get';
+export const UPDATE_USER_PASSWORD = 'https://localhost:7026/updateUserPassword';
 
 // Auth Routes
 export const PATH_AFTER_REGISTER = PATH_PUBLIC.login;

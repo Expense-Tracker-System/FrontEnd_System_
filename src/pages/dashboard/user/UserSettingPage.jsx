@@ -9,7 +9,7 @@ import useAuth from '../../../hooks/useAuth.hook';
 import toast from "react-hot-toast";
 import { FaCamera } from 'react-icons/fa';
 import axiosInstance from "../../../utils/axiosInstance";
-import { ADD_USER_IMAGE } from '../../../utils/globalConfig';
+import { ADD_USER_IMAGE, UPDATE_USER_PASSWORD } from '../../../utils/globalConfig';
 
 const UserSettingPage = () => {
     const { user, updateFirstNameLastName, updateUserName, updateUserEmail } = useAuth();
@@ -55,6 +55,9 @@ const UserSettingPage = () => {
         userPasswordNew: Yup.string()
             .required('New User Password is required')
             .min(8, 'Password must be at least 8 characters'),
+        confirmUserPasswordNew: Yup.string()
+            .required('Confirmation is reqired')
+            .oneOf([Yup.ref('userPasswordNew'), 'Password must match']),
     });
 
     // userPhoneNumber form validation...
@@ -119,6 +122,7 @@ const UserSettingPage = () => {
         defaultValues: {
             userPasswordOld: '',
             userPasswordNew: '',
+            confirmUserPasswordNew: ''
         }
     });
 
@@ -193,9 +197,25 @@ const UserSettingPage = () => {
 
 
     // API endpoint calling...
-    const onSubmitUpdateUserPassword = () => {
+    const onSubmitUpdateUserPassword = async(submittedData) => {
+        const userPasswordOld = submittedData.userPasswordOld;
+        const userPasswordNew = submittedData.userPasswordNew;
+        const confirmUserPasswordNew = submittedData.confirmUserPasswordNew;
 
-    }
+        try{
+            setLoadingUserPassword(true);
+            await axiosInstance.put(UPDATE_USER_PASSWORD,{
+                userPasswordOld,
+                userPasswordNew,
+                confirmUserPasswordNew
+            });
+            toast.success("User Password Successfully Upated");
+            setLoadingUserPassword(false);
+        }catch(error){
+            setLoadingUserPassword(false);
+            toast.error("An error occured, please contact admin");
+        }
+    };
 
     // API endpoint calling...
     const onSubmitUpdateUserPhoneNumber = () => {
@@ -281,6 +301,7 @@ const UserSettingPage = () => {
                             {/* given diferent inputName for separately working */}
                             <InputField control={controlUserPassword} label={'Password(Old)'} inputName={'userPasswordOld'} error={errorsUserPassword.userPasswordOld?.message} />
                             <InputField control={controlUserPassword} label={'Password(New)'} inputName={'userPasswordNew'} error={errorsUserPassword.userPasswordNew?.message} />
+                            <InputField control={controlUserPassword} label={'Confirm Password(New)'} inputName={'confirmUserPasswordNew'} error={errorsUserPassword.confirmUserPasswordNew?.message} />
                             <div className="flex flex-row justify-center items-center gap-3 my-3">
                                 <Button variant={'secondary'} type={'button'} label={'Discard'} onClick={() => restetUserPassword()} />
                                 <Button variant={'primary'} type={'submit'} label={'Update'} onClick={() => { }} loading={loadingUserPassword} />

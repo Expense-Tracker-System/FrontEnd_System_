@@ -4,6 +4,7 @@ import axiosInstance from "../../../utils/axiosInstance";
 import toast from "react-hot-toast";
 import Spinner from "../../../components/general/Spinner";
 import moment from "moment";
+import Button from '../../../components/general/Button';
 
 const OutMessagesPage = () => {
     const [outAllMessages, setOutAllMessages] = useState([]);
@@ -52,7 +53,9 @@ const OutMessagesPage = () => {
                             <span className="col-span-2">{moment(item.created).fromNow()}</span>
                             <span className="col-span-4">{item.text}</span>
                             <span className="col-span-3">{item.outUserEmail}</span>
-                            <span>{item.isChecked}</span>
+                            <div className="">
+                                <Button variant={item.isChecked ? "danger" : "light"} type={"button"} label={item.isChecked ? "Yes" : "No"} onClick={() => {}} loading={loading} disabled={!item.isChecked} />
+                            </div>
                         </div>
                     ))
                 }
