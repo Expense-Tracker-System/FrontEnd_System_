@@ -12,7 +12,7 @@ import {
 import DeleteIcon from "@mui/icons-material/Delete";
 import axios from "axios";
 import { toast } from "react-hot-toast";
-import { get } from "react-hook-form";
+import axiosInstance from "../../utils/axiosInstance";
 
 const BudgetDetails = ({
   budget,
@@ -23,13 +23,13 @@ const BudgetDetails = ({
 }) => {
   const [isUpdateDialogOpen, setIsUpdateDialogOpen] = useState(false);
   const [updatedBudget, setUpdatedBudget] = useState({
-    id: budget.id, // Ensure the ID is included in the updated budget object
+    id: budget.id,
     budgetName: budget.budgetName,
     budgetAmount: budget.budgetAmount,
     budgetDescription: budget.budgetDescription,
   });
   const [data, setData] = useState({});
-
+  const [errors, setErrors] = useState({});
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -39,61 +39,71 @@ const BudgetDetails = ({
     }));
   };
 
+  const validate = () => {
+    let tempErrors = {};
+    tempErrors.budgetName = updatedBudget.budgetName ? "" : "This field is required.";
+    tempErrors.budgetAmount = updatedBudget.budgetAmount > 0 ? "" : "This field is required.";
+    tempErrors.budgetDescription = updatedBudget.budgetDescription ? "" : "This field is required.";
+    setErrors(tempErrors);
+    return Object.values(tempErrors).every((x) => x === "");
+  };
+
   const handleUpdateClick = () => {
     setIsUpdateDialogOpen(true);
   };
 
   const handleSaveClick = async () => {
-    try {
-      console.log("Sending PUT request to update budget:", updatedBudget);
-      const response = await axios.put(
-        `https://localhost:7026/api/Budgets/${budget.id}`,
-        updatedBudget
-      );
-      console.log("Response from PUT request:", response.data);
-      onUpdateBudget(response.data);
-      setIsUpdateDialogOpen(false);
-       getbudget();
-       //getall();
-      // onClose()
-      toast.success("Budget updated successfully");
-    } catch (error) {
-      console.error("Error updating budget:", error);
-      toast.error("An error occurred while updating the budget");
+    if (validate()) {
+      try {
+        console.log("Sending PUT request to update budget:", updatedBudget);
+        const response = await axiosInstance.put(
+          `/Budgets/${budget.id}`,
+          updatedBudget
+        );
+        console.log("Response from PUT request:", response.data);
+        onUpdateBudget(response.data);
+        setIsUpdateDialogOpen(false);
+        getbudget();
+        getall();
+        toast.success("Budget updated successfully");
+      } catch (error) {
+        console.error("Error updating budget:", error);
+        toast.error("An error occurred while updating the budget");
+      }
+    } else {
+      toast.error("Please fill out all required fields");
     }
   };
+
   const getbudget = async () => {
-    try{
-      const response = await axios.get(`https://localhost:7026/api/Budgets/getsinglebudget?id=${budget.id}`)
-      console.log(response.data)
-      setData(response.data)
-    }catch(error){
+    try {
+      const response = await axiosInstance.get(`/Budgets/getsinglebudget?id=${budget.id}`);
+      console.log(response.data);
+      setData(response.data);
+    } catch (error) {
+      console.error("Error fetching budget data:", error);
+    }
+  };
 
-    }}
-
-    const deleteexpense=async(expenseid)=>{
-      try{
-        console.log(expenseid)
-      const response = await axios.delete(`https://localhost:7026/api/BExpenses/deleteexpense?id=${expenseid}`)
-      console.log(response.data)
+  const deleteexpense = async (expenseid) => {
+    try {
+      console.log(expenseid);
+      const response = await axiosInstance.delete(`/BExpenses/deleteexpense?id=${expenseid}`);
+      console.log(response.data);
       getbudget();
       getall();
-      }catch(error){ 
-
-      }
-
+      toast.success("Expense deleted successfully");
+    } catch (error) {
+      console.error("Error deleting expense:", error);
     }
+  };
 
-    useEffect(() => {
-      getbudget();
-    }, []);
+  useEffect(() => {
+    getbudget();
+  }, []);
 
   const handleCloseUpdateDialog = () => {
     setIsUpdateDialogOpen(false);
-  };
-
-  const handleDeleteExpense = (expenseName) => {
-    onDeleteExpense(budget.budgetName, expenseName);
   };
 
   return (
@@ -109,18 +119,18 @@ const BudgetDetails = ({
         </Typography>
         <Box mt={1}>
           <Typography variant="h6" sx={{ color: "black" }}>
-            Total Budgeted: ${data.budgetAmount==undefined? " " : data.budgetAmount.toFixed(2)}
+            Total Budgeted: ${data.budgetAmount === undefined ? " " : data.budgetAmount.toFixed(2)}
           </Typography>
           <Typography variant="h6" sx={{ color: "red" }}>
-            Total Spent: ${data.spent==undefined? " " :data.spent.toFixed(2)}
+            Total Spent: ${data.spent === undefined ? " " : data.spent.toFixed(2)}
           </Typography>
           <Typography variant="h6" sx={{ color: "green" }}>
-            Remaining: ${data.remain==undefined? " " :data.remain.toFixed(2)}
+            Remaining: ${data.remain === undefined ? " " : data.remain.toFixed(2)}
           </Typography>
         </Box>
         <Box mt={1}>
           <Typography variant="h5">{data.budgetName} Expenses:</Typography>
-          {data.expenses==undefined?[]:data.expenses.map((expense, index) => (
+          {data.expenses === undefined ? [] : data.expenses.map((expense, index) => (
             <Box
               key={index}
               display="flex"
@@ -178,6 +188,8 @@ const BudgetDetails = ({
             fullWidth
             variant="outlined"
             margin="normal"
+            error={!!errors.budgetName}
+            helperText={errors.budgetName}
           />
           <TextField
             name="budgetDescription"
@@ -189,6 +201,8 @@ const BudgetDetails = ({
             margin="normal"
             multiline
             rows={3}
+            error={!!errors.budgetDescription}
+            helperText={errors.budgetDescription}
           />
           <TextField
             name="budgetAmount"
@@ -202,6 +216,8 @@ const BudgetDetails = ({
             }}
             fullWidth
             margin="normal"
+            error={!!errors.budgetAmount}
+            helperText={errors.budgetAmount}
           />
         </DialogContent>
         <DialogActions>

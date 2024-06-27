@@ -6,6 +6,7 @@ import BudgetCard from './BudgetCard';
 import BudgetDetails from './BudgetDetails';
 import axios from 'axios';
 import { toast } from 'react-hot-toast';
+import axiosInstance from '../../utils/axiosInstance';
 
 const BudgetDashboard = () => {
   const [budgets, setBudgets] = useState([]);
@@ -40,7 +41,7 @@ const BudgetDashboard = () => {
 
   const handleDeleteBudget = async () => {
     try {
-      await axios.delete(`https://localhost:7026/api/Budgets/${selectedBudget.id}`);
+      await axiosInstance.delete(`/Budgets/${selectedBudget.id}`);
       setBudgets(budgets.filter(budget => budget.budgetName !== selectedBudget.budgetName));
       setIsDeleteDialogOpen(false);
       handleCloseDetails();
@@ -71,7 +72,7 @@ const BudgetDashboard = () => {
 
   const getall = async () => {
     try {
-      const response = await axios.get("https://localhost:7026/api/Budgets?username=c5a6ae0b-5fed-4c73-a003-7d8a9085966e");
+      const response = await axiosInstance.get("/Budgets");
       console.log(response.data);
       setMybudget(response.data);
     } catch (error) {

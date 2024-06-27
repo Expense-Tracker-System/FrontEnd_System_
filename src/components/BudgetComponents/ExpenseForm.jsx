@@ -3,6 +3,7 @@ import { Container, TextField, Button, Box, Typography, MenuItem } from '@mui/ma
 import { styled } from '@mui/system';
 import axios from 'axios';
 import toast from 'react-hot-toast';
+import axiosInstance from '../../utils/axiosInstance';
 
 const FormContainer = styled(Box)({
   border: '1px dashed #ccc',
@@ -26,7 +27,7 @@ const ExpenseForm = ({ onAddExpense, budgetCategories,budget,getall }) => {
       });
     } else {
       try {
-        var response = await axios.post("https://localhost:7026/api/BExpenses",{
+        var response = await axiosInstance.post("/BExpenses",{
           expenseId:0,
           bExpenseName: expenseName,
           bExpenseAmount: amount,
