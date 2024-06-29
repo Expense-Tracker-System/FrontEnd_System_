@@ -9,7 +9,7 @@ import useAuth from '../../../hooks/useAuth.hook';
 import toast from "react-hot-toast";
 import { FaCamera } from 'react-icons/fa';
 import axiosInstance from "../../../utils/axiosInstance";
-import { ADD_USER_IMAGE, UPDATE_USER_PASSWORD } from '../../../utils/globalConfig';
+import { ADD_USER_IMAGE, UPDATE_USER_PASSWORD, UPDATE_USER_PHONE_NUMBER } from '../../../utils/globalConfig';
 
 const UserSettingPage = () => {
     const { user, updateFirstNameLastName, updateUserName, updateUserEmail } = useAuth();
@@ -150,7 +150,7 @@ const UserSettingPage = () => {
         } catch (error) {
             setLoadingFirstNameLastName(false);
             resetFirstNameLastName()
-            toast.error('An Error occurred. Please contact admin');
+            toast.error('An Error occurred. Please contact admin', error.message);
         }
     };
 
@@ -163,7 +163,7 @@ const UserSettingPage = () => {
         } catch (error) {
             setLoadingUserName(false);
             resetUserName();
-            toast.error('An Error occured. Please contact admin');
+            toast.error('An Error occured. Please contact admin', error.message);
         }
     };
 
@@ -191,7 +191,7 @@ const UserSettingPage = () => {
             setLoadingUserEmail(false);
         } catch(error){
             setLoadingUserEmail(false);
-            toast.error('An error occurred. Please contact admin');
+            toast.error('An error occurred. Please contact admin', error.message);
         }
     };
 
@@ -209,17 +209,27 @@ const UserSettingPage = () => {
                 userPasswordNew,
                 confirmUserPasswordNew
             });
-            toast.success("User Password Successfully Upated");
+            toast.success("User Password Successfully Updated");
             setLoadingUserPassword(false);
         }catch(error){
             setLoadingUserPassword(false);
-            toast.error("An error occured, please contact admin");
+            toast.error("An error occured, please contact admin", error.message);
         }
     };
 
     // API endpoint calling...
-    const onSubmitUpdateUserPhoneNumber = () => {
-
+    const onSubmitUpdateUserPhoneNumber = async(submitteData) => {
+        try{
+            setLoadingUserPhoneNumber(true);
+            axiosInstance.put(UPDATE_USER_PHONE_NUMBER, {
+                userPhoneNumber: submitteData.userPhoneNumber
+            });
+            toast.success("User Phone Number Successfully Updated")
+            setLoadingUserPhoneNumber(false);
+        }catch(error){
+            setLoadingUserPhoneNumber(false);
+            toast.success("An error occured, please contact admin", error.message);
+        }
     }
 
     // API endpoint calling...
@@ -239,7 +249,7 @@ const UserSettingPage = () => {
             toast.success('user image added sucessfully');
         } catch (error) {
             setLoadingHandleFile(false);
-            toast.error('An error occurred. Please contact admin');
+            toast.error('An error occurred. Please contact admin', error.message);
         }
     };
 
@@ -253,16 +263,16 @@ const UserSettingPage = () => {
     return (
         <div className='pageTemplate2'>
             <h1 className='text-3xl font-bold'>Setting</h1>
-            <div className="pageTemplate3 items-stretch">
-                <div className="grid grid-cols-3">
-                    <div className="col-span-1">
+            <div className="items-stretch">
+                <div className="grid lg:grid-cols-3 sm:grid-cols-2 gap-1">
+                    <div className="lg:fixed top-[20vh-10px] lg:w-[25vw] h-[80vh] sm:col-span-2 flex justify-center pt-16 col-span-1 bg-white border-2 rounded-lg">
                         <form>
                             <div className="relative w-full flex justify-center">
                                 <img src="https://th.bing.com/th/id/R.13b51ac382a5f8d7a535631ee300e835?rik=jw%2fJuxTP2zNELQ&pid=ImgRaw&r=0"
                                     className="h-[220px] w-[220px] rounded-full object-cover border-8" />
                                 {/* input element id == lable element htmlFor */}
                                 <input type="file" id="file" className="hidden" onChange={handleFileChange} />
-                                <label htmlFor='file' className="absolute bottom-3 right-20 text-3xl text-[#a2a8a6]"><FaCamera /></label>
+                                <label htmlFor='file' className="absolute lg:bottom-3 lg:right-10 sm:bottom-0 sm:right-30 text-3xl text-[#a2a8a6]"><FaCamera /></label>
                             </div>
                             <div className="w-full flex justify-center gap-4 mt-3">
                                 <Button variant={'secondary'} type={'button'} label={'Update'} onClick={() => { }} loading={loading} />
@@ -270,7 +280,8 @@ const UserSettingPage = () => {
                             </div>
                         </form>
                     </div>
-                    <div className="col-span-2">
+                    <div className="lg:col-start-2 lg:col-span-2 sm:col-span-2 bg-white border-2 rounded-lg">
+                        
                         <form onSubmit={handleSubmitFirstNameLastName(onSubmitUpdateFirstNameLastName)}>
                             {/* given diferent inputName for separately working */}
                             <InputField control={controlFirstNameLastName} label={'First Name'} inputName={'firstName'} error={errorsFirstNameLastName.firstName?.message} />
@@ -280,6 +291,10 @@ const UserSettingPage = () => {
                                 <Button variant={'primary'} type={'submit'} label={'Update'} onClick={() => { }} loading={loadingFirstNameLastName} />
                             </div>
                         </form>
+                        <div className="w-full flex justify-start items-center">
+                            <p className="">Update Your First / Last Name</p>
+                            <hr className="w-[100px] h-[1px] bg-gray-400" />
+                        </div>
                         <form onSubmit={handleSubmitUserName(onSubmitUpdateUserName)}>
                             {/* given diferent inputName for separately working */}
                             <InputField control={controlUserName} label={'User Name(Old)'} inputName={'userNameOld'} error={errorsUserName.userNameOld?.message} />
@@ -289,6 +304,7 @@ const UserSettingPage = () => {
                                 <Button variant={'primary'} type={'submit'} label={'Update'} onClick={() => { }} loading={loadingUserName} />
                             </div>
                         </form>
+                        <div className="w-full h-[1px] bg-slate-300"></div>
                         <form onSubmit={handleSubmitUserEmail(onSubmitUpdateUserEmail)}>
                             {/* given diferent inputName for separately working */}
                             <InputField control={controlUserEmail} label={'User Email'} inputName={'userEmail'} error={errorsUserEmail.userEmail?.message} />
@@ -297,6 +313,7 @@ const UserSettingPage = () => {
                                 <Button variant={'primary'} type={'submit'} label={'Update'} onClick={() => { }} loading={loadingUserEmail} />
                             </div>
                         </form>
+                        <div className="w-full h-[1px] bg-slate-300"></div>
                         <form onSubmit={handleSubmitUserPassword(onSubmitUpdateUserPassword)}>
                             {/* given diferent inputName for separately working */}
                             <InputField control={controlUserPassword} label={'Password(Old)'} inputName={'userPasswordOld'} error={errorsUserPassword.userPasswordOld?.message} />
@@ -307,6 +324,7 @@ const UserSettingPage = () => {
                                 <Button variant={'primary'} type={'submit'} label={'Update'} onClick={() => { }} loading={loadingUserPassword} />
                             </div>
                         </form>
+                        <div className="w-full h-[1px] bg-slate-300"></div>
                         <form onSubmit={handleSubmitUserPhoneNumber(onSubmitUpdateUserPhoneNumber)}>
                             {/* given diferent inputName for separately working */}
                             <InputField control={controlUserPhoneNumber} label={'Phone Number'} inputName={'userPhoneNumber'} error={errorsUserPhoneNumber.userPhoneNumber?.message} />
