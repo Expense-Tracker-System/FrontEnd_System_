@@ -32,7 +32,7 @@ const OutMessagesPage = () => {
 
     // set the loading
     if (loading) {
-        return <div>
+        return <div className="w-full">
             <Spinner />
         </div>
     };

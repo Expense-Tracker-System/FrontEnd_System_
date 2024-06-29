@@ -262,10 +262,10 @@ const UserSettingPage = () => {
 
     return (
         <div className='pageTemplate2'>
-            <h1 className='text-3xl font-bold'>Setting</h1>
-            <div className="items-stretch">
+            <h1 className='text-3xl font-bold fixed w-full z-10'>Setting</h1>
+            <div className="items-stretch mt-14">
                 <div className="grid lg:grid-cols-3 sm:grid-cols-2 gap-1">
-                    <div className="lg:fixed top-[20vh-10px] lg:w-[25vw] h-[80vh] sm:col-span-2 flex justify-center pt-16 col-span-1 bg-white border-2 rounded-lg">
+                    <div className="lg:fixed top-[20vh-10px] lg:w-[25vw] h-[77vh] sm:col-span-2 flex justify-center pt-16 col-span-1 bg-white border-2 rounded-lg">
                         <form>
                             <div className="relative w-full flex justify-center">
                                 <img src="https://th.bing.com/th/id/R.13b51ac382a5f8d7a535631ee300e835?rik=jw%2fJuxTP2zNELQ&pid=ImgRaw&r=0"
@@ -280,55 +280,67 @@ const UserSettingPage = () => {
                             </div>
                         </form>
                     </div>
-                    <div className="lg:col-start-2 lg:col-span-2 sm:col-span-2 bg-white border-2 rounded-lg">
-                        
+                    <div className="lg:col-start-2 lg:col-span-2 sm:col-span-2 bg-white border-2 rounded-lg h-[77vh] overflow-y-auto">
+                        <div className="px-5 pt-4 py-2 w-full flex gap-2 justify-between items-center">
+                            <p className="">Update Your First / Last Name</p>
+                            <hr className="w-[20vw] h-[1px] bg-gray-400" />
+                        </div>
                         <form onSubmit={handleSubmitFirstNameLastName(onSubmitUpdateFirstNameLastName)}>
                             {/* given diferent inputName for separately working */}
                             <InputField control={controlFirstNameLastName} label={'First Name'} inputName={'firstName'} error={errorsFirstNameLastName.firstName?.message} />
                             <InputField control={controlFirstNameLastName} label={'Last Name'} inputName={'lastName'} error={errorsFirstNameLastName.lastName?.message} />
-                            <div className="flex flex-row justify-center items-center gap-3 my-3">
+                            <div className="flex flex-row justify-end items-center gap-3 my-3 px-5">
                                 <Button variant={'secondary'} type={'button'} label={'Discard'} onClick={() => resetFirstNameLastName()} />
                                 <Button variant={'primary'} type={'submit'} label={'Update'} onClick={() => { }} loading={loadingFirstNameLastName} />
                             </div>
                         </form>
-                        <div className="w-full flex justify-start items-center">
-                            <p className="">Update Your First / Last Name</p>
-                            <hr className="w-[100px] h-[1px] bg-gray-400" />
+                        <div className="px-5 pt-4 pb-2 w-full flex gap-2 justify-between items-center">
+                            <p className="">Update Your User Name</p>
+                            <hr className="w-[20vw] h-[1px] bg-gray-400" />
                         </div>
                         <form onSubmit={handleSubmitUserName(onSubmitUpdateUserName)}>
                             {/* given diferent inputName for separately working */}
                             <InputField control={controlUserName} label={'User Name(Old)'} inputName={'userNameOld'} error={errorsUserName.userNameOld?.message} />
                             <InputField control={controlUserName} label={'User Name(New)'} inputName={'userNameNew'} error={errorsUserName.userNameNew?.message} />
-                            <div className="flex flex-row justify-center items-center gap-3 my-3">
+                            <div className="flex flex-row justify-end items-center gap-3 my-3 px-5">
                                 <Button variant={'secondary'} type={'button'} label={'Discard'} onClick={() => resetUserName()} />
                                 <Button variant={'primary'} type={'submit'} label={'Update'} onClick={() => { }} loading={loadingUserName} />
                             </div>
                         </form>
-                        <div className="w-full h-[1px] bg-slate-300"></div>
+                        <div className="px-5 pt-4 pb-2 w-full flex gap-2 justify-between items-center">
+                            <p className="">Update Your Email</p>
+                            <hr className="w-[20vw] h-[1px] bg-gray-400" />
+                        </div>
                         <form onSubmit={handleSubmitUserEmail(onSubmitUpdateUserEmail)}>
                             {/* given diferent inputName for separately working */}
                             <InputField control={controlUserEmail} label={'User Email'} inputName={'userEmail'} error={errorsUserEmail.userEmail?.message} />
-                            <div className="flex flex-row justify-center items-center gap-3 my-3">
+                            <div className="flex flex-row justify-end items-center gap-3 my-3 px-5">
                                 <Button variant={'secondary'} type={'button'} label={'Discard'} onClick={() => resetUserEmail()} />
                                 <Button variant={'primary'} type={'submit'} label={'Update'} onClick={() => { }} loading={loadingUserEmail} />
                             </div>
                         </form>
-                        <div className="w-full h-[1px] bg-slate-300"></div>
+                        <div className="px-5 pt-4 pb-2 w-full flex gap-2 justify-between items-center">
+                            <p className="">Update Your Password</p>
+                            <hr className="w-[20vw] h-[1px] bg-gray-400" />
+                        </div>
                         <form onSubmit={handleSubmitUserPassword(onSubmitUpdateUserPassword)}>
                             {/* given diferent inputName for separately working */}
                             <InputField control={controlUserPassword} label={'Password(Old)'} inputName={'userPasswordOld'} error={errorsUserPassword.userPasswordOld?.message} />
                             <InputField control={controlUserPassword} label={'Password(New)'} inputName={'userPasswordNew'} error={errorsUserPassword.userPasswordNew?.message} />
                             <InputField control={controlUserPassword} label={'Confirm Password(New)'} inputName={'confirmUserPasswordNew'} error={errorsUserPassword.confirmUserPasswordNew?.message} />
-                            <div className="flex flex-row justify-center items-center gap-3 my-3">
+                            <div className="flex flex-row justify-end items-center gap-3 my-3 px-5">
                                 <Button variant={'secondary'} type={'button'} label={'Discard'} onClick={() => restetUserPassword()} />
                                 <Button variant={'primary'} type={'submit'} label={'Update'} onClick={() => { }} loading={loadingUserPassword} />
                             </div>
                         </form>
-                        <div className="w-full h-[1px] bg-slate-300"></div>
+                        <div className="px-5 pt-4 pb-2 w-full flex gap-2 justify-between items-center">
+                            <p className="">Update Your Phone Number</p>
+                            <hr className="w-[20vw] h-[1px] bg-gray-400" />
+                        </div>
                         <form onSubmit={handleSubmitUserPhoneNumber(onSubmitUpdateUserPhoneNumber)}>
                             {/* given diferent inputName for separately working */}
                             <InputField control={controlUserPhoneNumber} label={'Phone Number'} inputName={'userPhoneNumber'} error={errorsUserPhoneNumber.userPhoneNumber?.message} />
-                            <div className="flex flex-row justify-center items-center gap-3 my-3">
+                            <div className="flex flex-row justify-end items-center gap-3 my-3 px-5">
                                 <Button variant={'secondary'} type={'button'} label={'Discard'} onClick={() => resetUserPhoneNumber()} />
                                 <Button variant={'primary'} type={'submit'} label={'Update'} onClick={() => { }} loading={loadingUserPhoneNumber} />
                             </div>

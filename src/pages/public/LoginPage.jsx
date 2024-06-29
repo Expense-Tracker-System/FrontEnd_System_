@@ -37,7 +37,7 @@ const LoginPage = () => {
     const onSubmitLoginForm = async (data) => {
         try {
             setLoading(true);
-            await login(data.userName,data.password,localStorage.getItem('mode'));
+            await login(data.userName,data.password);
             setLoading(false);
         } catch(error) {
             setLoading(false);
