@@ -2,16 +2,17 @@ import useAuth from '../../hooks/useAuth.hook';
 import Button from '../general/Button';
 import { AiOutlineHome } from 'react-icons/ai';
 import { FiLock, FiUnlock } from 'react-icons/fi';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { PATH_DASHBOARD_ADMIN, PATH_DASHBOARD_USER, PATH_PUBLIC } from '../../routes/paths';
 import { useContext } from 'react';
-import { RiAdminFill } from "react-icons/ri";
-import { FaUser } from "react-icons/fa6";
+// import { RiAdminFill } from "react-icons/ri";
+// import { FaUser } from "react-icons/fa6";
 import ModeContext from '../../auth/mode.context';
 
 const Header = () => {
     const { isAuthenticated, isAuthLoading, user, logout } = useAuth();
     const navigate = useNavigate();
+    const location = useLocation();
 
     const { mode, toggleMode } = useContext(ModeContext);
 
@@ -30,7 +31,7 @@ const Header = () => {
                     onClick={() => navigate('/')}
                 />
                 {
-                    mode == 'user' ? (
+                    location.pathname !== PATH_DASHBOARD_ADMIN.home ? (
                         isAuthenticated ? (
                             <div></div>
                         ) : (
@@ -96,7 +97,7 @@ const Header = () => {
                         </div>
                     )
                 }
-                {
+                {/* {
                     isAuthenticated ? (
                         <div></div>
                     ) : (
@@ -110,7 +111,7 @@ const Header = () => {
                                 {mode == 'user' ? <FaUser /> : <RiAdminFill />}</div>
                         </button>
                     )
-                }
+                } */}
             </div>
         </div>
     )

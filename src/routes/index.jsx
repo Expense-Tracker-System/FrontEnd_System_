@@ -43,6 +43,7 @@ const GlobalRouter = () => {
             <Route element={<Layout />}>
                 {/* Public routes */}
                 <Route index element={<HomePage />} />
+                <Route path={PATH_DASHBOARD_ADMIN.home} element={<HomePage />} />
 
                 {/* Protected routes */}
                 <Route element={<AuthGuardForUser />}>
