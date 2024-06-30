@@ -1,18 +1,18 @@
 import { useForm } from "react-hook-form"
-import InputField from "../../../components/general/InputField"
+import InputField from "../../general/InputField"
 import { yupResolver } from "@hookform/resolvers/yup"
 import * as Yup from 'yup';
-import Button from "../../../components/general/Button";
-import { useEffect, useState } from "react";
-import Spinner from "../../../components/general/Spinner";
+import Button from "../../general/Button";
+import { useState } from "react";
+import Spinner from "../../general/Spinner";
 import useAuth from '../../../hooks/useAuth.hook';
 import toast from "react-hot-toast";
 import { FaCamera } from 'react-icons/fa';
 import axiosInstance from "../../../utils/axiosInstance";
-import { ADD_USER_IMAGE, UPDATE_USER_PASSWORD, UPDATE_USER_PHONE_NUMBER } from '../../../utils/globalConfig';
+import { ADD_USER_IMAGE } from '../../../utils/globalConfig';
 
-const UserProfile = () => {
-    const { user, updateFirstNameLastName, updateUserName, updateUserEmail } = useAuth();
+const UserProfileSetting = () => {
+    const { user } = useAuth();
     const [loadingHandleFile, setLoadingHandleFile] = useState(false);
     const [loading, setLoading] = useState(false);
 
@@ -78,10 +78,10 @@ const UserProfile = () => {
     } = useForm({
         resolver: yupResolver(updateUserProfile_),
         defaultValues: {
-            userFirstName: '',
-            userLastName: '',
-            userEmail: '',
-            userPhoneNumber: ''
+            userFirstName: user.firstName,
+            userLastName: user.lastName,
+            userEmail: user.email,
+            userPhoneNumber: user.phoneNumber,
         }
     });
 
@@ -137,14 +137,18 @@ const UserProfile = () => {
             </div>
             <div className="px-5 py-2 border-2 border-[#ededed] rounded-lg mt-2">
                 <form onSubmit={handleSubmitUserProfile(onSubmitUserProfile)}>
-                    <div className="">
-                        <InputField control={controlUserProfile} label={'First Name'} inputName={'userFirstName'} error={errorsUserProfile.userFirstName?.message} />
-                        <InputField control={controlUserProfile} label={'Last Name'} inputName={'userLastName'} error={errorsUserProfile.userLastName?.message} />
+                    <div className="grid lg:grid-cols-2 sm:grid-cols-1">
+                        <div className="col-span-1">
+                            <InputField control={controlUserProfile} label={'First Name'} inputName={'userFirstName'} error={errorsUserProfile.userFirstName?.message} />
+                        </div>
+                        <div className="col-span-1">
+                            <InputField control={controlUserProfile} label={'Last Name'} inputName={'userLastName'} error={errorsUserProfile.userLastName?.message} />
+                        </div>
                     </div>
-                    <div className="">
+                    <div className="grid grid-cols-1">
                         <InputField control={controlUserProfile} label={'Email'} inputName={'userEmail'} error={errorsUserProfile.userEmail?.message} />
                     </div>
-                    <div className="">
+                    <div className="grid grid-cols-1">
                         <InputField control={controlUserProfile} label={'Phone Number'} inputName={'userPhoneNumber'} error={errorsUserProfile.userPhoneNumber?.message} />
                     </div>
                     <div className="flex justify-end items-center gap-3 pr-12 py-4">
@@ -157,4 +161,4 @@ const UserProfile = () => {
     )
 }
 
-export default UserProfile
+export default UserProfileSetting
