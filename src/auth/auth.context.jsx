@@ -21,9 +21,6 @@ import {
     PATH_AFTER_REGISTER,
     PATH_AFTER_LOGOUT,
     REGISTER_URL,
-    UPDATE_FIRSTNAME_LASTNAME,
-    UPDATE_USERNAME,
-    UPDATE_USEREMAIL
 } from '../utils/globalConfig';
 
 // We need a reducer function for useReducer hook
@@ -42,30 +39,6 @@ const authReducer = (state,action) => {
             isAuthenticated: false,
             isAuthLoading: false,
             user: undefined,
-        }
-    }
-    if(action.type == 'UpdateFirstNameLastName'){
-        return {
-            ...state,
-            isAuthenticated: true,
-            isAuthLoading: false,
-            user: action.payload,
-        }
-    }
-    if(action.type == 'UpdateUserName'){
-        return {
-            ...state,
-            isAuthenticated: true,
-            isAuthLoading: false,
-            user: action.payload
-        }
-    }
-    if(action.type == 'UpdateUserEmail'){
-        return {
-            ...state,
-            isAuthenticated: true,
-            isAuthLoading: false,
-            user: action.payload
         }
     }
     return state;
@@ -169,56 +142,6 @@ const AuthContextProvider = ({ children }) => {
         navigate(PATH_AFTER_LOGOUT);
     },[]);
 
-    // updateFistNameLastName Method
-    const updateFirstNameLastName = useCallback(async(userName, firstName, lastName) =>{
-        const response = await axiosInstance.put(UPDATE_FIRSTNAME_LASTNAME, {
-            userName,
-            firstName,
-            lastName
-        });
-
-        toast.success('First Name & Last Name successfully updated');
-
-        const { newToken, userInfo } = response.data;
-        setSession(newToken);
-        dispatch({
-            type: 'UpdateFirstNameLastName',
-            payload: userInfo
-        });
-        
-    },[]);
-
-    // updateUserName method
-    const updateUserName = useCallback(async(userName, newUserName) => {
-        const response = await axiosInstance.put(UPDATE_USERNAME, {
-            userName,
-            newUserName
-        });
-        toast.success('User Name successfully updated');
-
-        const { newToken, userInfo } = response.data;
-        setSession(newToken);
-        dispatch({
-            type: 'UpdateUserName',
-            payload: userInfo
-        });
-    },[]);
-
-    // updateUserEmail method
-    const updateUserEmail = useCallback(async(email) => {
-        // Must care -> send structure === receive structire
-        const response = await axiosInstance.put(UPDATE_USEREMAIL, {
-            email
-        });
-        toast.success('User Email successfully upated');
-
-        const { userInfo } = response.data;
-        dispatch({
-            type: 'UpdateUserEmail',
-            payload: userInfo
-        });
-    },[]);
-
     // We create an object for values of context provider
     // This will keep our codes more readable
     const valuesObject = {
@@ -228,9 +151,6 @@ const AuthContextProvider = ({ children }) => {
         register,
         login,
         logout,
-        updateFirstNameLastName,
-        updateUserName,
-        updateUserEmail
     };
 
     return ( <AuthContext.Provider value={valuesObject}>{children}</AuthContext.Provider> )

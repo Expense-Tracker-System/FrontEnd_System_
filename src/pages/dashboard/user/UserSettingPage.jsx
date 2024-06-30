@@ -1,7 +1,10 @@
 import { useState } from "react";
 import TabPanel from "../../../components/SettingComponenets/UserSetting/TabPanel";
 import a11yProps from "../../../components/SettingComponenets/UserSetting/a11yProps";
-import UserProfile from "../../../components/SettingComponenets/UserSetting/UserProfile";
+import UserProfileSetting from "../../../components/SettingComponenets/UserSetting/UserProfileSetting";
+import UserAccountSetting from "../../../components/SettingComponenets/UserSetting/UserAccountSetting";
+import UserSecuritySetting from "../../../components/SettingComponenets/UserSetting/UserSecuritySetting";
+import UserNotificationSetting from "../../../components/SettingComponenets/UserSetting/UserNotificationSetting";
 
 const AdminSettings = () => {
     const [tabIndex, setTabIndex] = useState(0);
@@ -51,16 +54,16 @@ const AdminSettings = () => {
                     </div>
 
                     <TabPanel value={tabIndex} index={0}>
-                        <UserProfile />
+                        <UserProfileSetting />
                     </TabPanel>
                     <TabPanel value={tabIndex} index={1}>
-
+                        <UserAccountSetting />
                     </TabPanel>
                     <TabPanel value={tabIndex} index={2}>
-
+                        <UserSecuritySetting />
                     </TabPanel>
                     <TabPanel value={tabIndex} index={3}>
-
+                        <UserNotificationSetting />
                     </TabPanel>
                 </div>
             </div>
@@ -69,3 +72,34 @@ const AdminSettings = () => {
 };
 
 export default AdminSettings;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// import React from 'react'
+// import Setting from '../../../components/SettingComponenets/Setting';
+
+// const UserSettingPage = () => {
+//     return (
+//         <div className='pageTemplate2'>
+//             <h1 className='text-3xl font-bold'>Setting</h1>
+//             <div className='pageTemplate3'>
+//                 <Setting />
+//             </div>
+//         </div>
+//     )
+// }
+
+// export default UserSettingPage
