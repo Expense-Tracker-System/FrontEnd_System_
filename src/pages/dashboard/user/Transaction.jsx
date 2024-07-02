@@ -161,6 +161,7 @@ const Transaction = () => {
             <div className='bg-white-200'>
                 <h1 className='text-4xl md:text-6xl font-bold text-center pt-6 text-black'>Transaction</h1>
                 <div className='container mt-10 mx-auto px-5'>
+
                     <div className='p-2 bg-white rounded-lg shadow-lg'>
                         <div className='flex flex-col md:flex-row'>
                             <div className='flex flex-col w-full md:w-1/3 p-5'>

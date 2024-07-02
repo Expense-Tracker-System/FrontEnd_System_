@@ -1,6 +1,9 @@
 import React, { useState } from "react";
 import { Container, TextField, Button, Box, Typography } from "@mui/material";
 import { styled } from "@mui/system";
+import axios from "axios";
+import { toast } from "react-hot-toast";
+import axiosInstance from "../../utils/axiosInstance";
 
 const FormContainer = styled(Box)({
   border: "1px dashed #ccc",
@@ -9,22 +12,45 @@ const FormContainer = styled(Box)({
   marginBottom: "20px",
 });
 
-const BudgetForm = ({ onCreateBudget }) => {
+const BudgetForm = ({ onCreateBudget,getall }) => {
   const [budgetName, setBudgetName] = useState("");
-  const [amount, setAmount] = useState("");
-  const [errors, setErrors] = useState({ budgetName: false, amount: false });
+  const [amount, setAmount] = useState(0);
+  const [description, setDescription] = useState("");
+  const [errors, setErrors] = useState({
+    budgetName: false,
+    amount: false,
+    description: false,
+  });
 
-  const handleCreateBudget = () => {
-    if (budgetName === "" || amount === "") {
+  const handleCreateBudget = async () => {
+    if (budgetName === "" || amount <= 0   || description === "") {
       setErrors({
         budgetName: budgetName === "",
-        amount: amount === "",
+        amount: amount <=0 ,
+        description: description === "",
       });
     } else {
-      onCreateBudget({ budgetName, amount: parseFloat(amount) });
-      setBudgetName("");
-      setAmount("");
-      setErrors({ budgetName: false, amount: false });
+      try {
+        var response = await axiosInstance.post("/Budgets", {
+          budgetName: budgetName,
+          budgetAmount: amount,
+          budgetDescription: description,
+        });
+        setBudgetName("");
+        setAmount(0);
+        setDescription("");
+        console.log(response);
+        getall();
+        toast.success("Budget Set successfully");
+      } catch (err) {
+        console.log(err);
+        toast.error("An Error occurred.");
+      }
+      // onCreateBudget({ budgetName, amount: parseFloat(amount), description });
+      // setBudgetName("");
+      // setAmount("");
+      // setDescription("");
+      // setErrors({ budgetName: false, amount: false, description: false });
     }
   };
 
@@ -52,6 +78,17 @@ const BudgetForm = ({ onCreateBudget }) => {
         placeholder="e.g., $350"
         error={errors.amount}
         helperText={errors.amount ? "Amount is required" : ""}
+      />
+      <TextField
+        label="Budget Description"
+        variant="outlined"
+        fullWidth
+        margin="normal"
+        value={description}
+        onChange={(e) => setDescription(e.target.value)}
+        placeholder="e.g., Monthly groceries and essentials"
+        error={errors.description}
+        helperText={errors.description ? "Description is required" : ""}
       />
       <Button
         style={{

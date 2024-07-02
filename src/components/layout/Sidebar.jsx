@@ -52,6 +52,12 @@ const Sidebar = () => {
                             variant='secondary'
                         />
                         <Button
+                            label='Out All Messages'
+                            onClick={() => handelClick(PATH_DASHBOARD_ADMIN.outMessages)}
+                            type='button'
+                            variant='secondary'
+                        />
+                        <Button
                             label='All Logs'
                             onClick={() => handelClick(PATH_DASHBOARD_ADMIN.systemLogs)}
                             type='button'

@@ -99,7 +99,7 @@ const UserSendMessagePage = () => {
                         error={errors.receiverUserName?.message}
                     />
                     <InputField control={control} label='Text' inputName='text' error={errors.text?.message} />
-                    <div className='flex justify-center items-center gap-4 mt-6'>
+                    <div className='flex justify-end items-center gap-4 mt-6 px-12'>
                         <Button variant='secondary' type='button' label='Discard' onClick={() => reset()} />
                         <Button variant='primary' type='submit' label='Send' onClick={() => {}} loading={loading} />
                     </div>

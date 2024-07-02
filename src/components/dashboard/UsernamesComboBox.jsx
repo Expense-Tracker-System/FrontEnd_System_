@@ -17,7 +17,7 @@ const UsernamesComboBox = ({usernames = [], control, name, error}) => {
     const dynamicClassName = error ? 'border-red-500 rounded-lg' : 'border-[#754eb477]';
 
     return (
-        <div className='px-4 my-2 w-9/12'>
+        <div className='px-12 my-2 w-full'>
             {renderTopRow()}
 
             <Controller

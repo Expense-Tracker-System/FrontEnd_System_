@@ -1,14 +1,19 @@
-import React, { useState } from 'react';
-import { Container, Grid, Typography, Dialog, DialogActions, Button } from '@mui/material';
+import React, { useEffect, useState } from 'react';
+import { Container, Grid, Typography, Dialog, DialogActions, Button, TextField } from '@mui/material';
 import BudgetForm from './BudgetForm';
 import ExpenseForm from './ExpenseForm';
 import BudgetCard from './BudgetCard';
 import BudgetDetails from './BudgetDetails';
+import axios from 'axios';
+import { toast } from 'react-hot-toast';
+import axiosInstance from '../../utils/axiosInstance';
 
 const BudgetDashboard = () => {
   const [budgets, setBudgets] = useState([]);
   const [selectedBudget, setSelectedBudget] = useState(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [mybudget, setMybudget] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const handleCreateBudget = (newBudget) => {
     setBudgets([...budgets, { ...newBudget, expenses: [] }]);
@@ -34,10 +39,26 @@ const BudgetDashboard = () => {
     setSelectedBudget(null);
   };
 
-  const handleDeleteBudget = () => {
-    setBudgets(budgets.filter(budget => budget !== selectedBudget));
-    setIsDeleteDialogOpen(false);
-    handleCloseDetails();
+  const handleDeleteBudget = async () => {
+    try {
+      await axiosInstance.delete(`/Budgets/${selectedBudget.id}`);
+      setBudgets(budgets.filter(budget => budget.budgetName !== selectedBudget.budgetName));
+      setIsDeleteDialogOpen(false);
+      handleCloseDetails();
+      // Fetch the updated list of budgets from the backend to refresh the view
+      getall();
+      toast.success('Budget deleted successfully');
+    } catch (error) {
+      console.error("Error deleting budget:", error);
+      toast.error('An error occurred while deleting the budget');
+    }
+  };
+  const handleUpdateBudget = (updatedBudget) => {
+    console.log("Updating budget in state:", updatedBudget);
+    setBudgets(budgets.map(budget => 
+      budget.id === updatedBudget.id ? updatedBudget : budget
+    ));
+
   };
 
   const handleOpenDeleteDialog = (budget) => {
@@ -49,14 +70,30 @@ const BudgetDashboard = () => {
     setIsDeleteDialogOpen(false);
   };
 
+  const getall = async () => {
+    try {
+      const response = await axiosInstance.get("/Budgets");
+      console.log(response.data);
+      setMybudget(response.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => { getall() }, []);
+
+  const filteredBudgets = mybudget.filter(budget => 
+    budget.budgetName.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
     <Container>
       <Grid container spacing={3}>
         <Grid item xs={12} md={6}>
-          <BudgetForm onCreateBudget={handleCreateBudget} />
+          <BudgetForm getall={getall} onCreateBudget={handleCreateBudget} />
         </Grid>
         <Grid item xs={12} md={6}>
-          <ExpenseForm onAddExpense={handleAddExpense} budgetCategories={budgets.map(b => b.budgetName)} />
+          <ExpenseForm getall={getall} budget={mybudget} onAddExpense={handleAddExpense} budgetCategories={budgets.map(b => b.budgetName)} />
         </Grid>
       </Grid>
 
@@ -64,8 +101,18 @@ const BudgetDashboard = () => {
         Existing Budgets
       </Typography>
 
+      <TextField
+        label="Search Budgets"
+        variant="outlined"
+        fullWidth
+        margin="normal"
+        value={searchQuery}
+        onChange={(e) => setSearchQuery(e.target.value)}
+        sx={{color: '#07271F'}}
+      />
+
       <Grid container spacing={3}>
-        {budgets.map((budget, index) => (
+        {filteredBudgets.map((budget, index) => (
           <Grid item xs={12} md={6} key={index}>
             <BudgetCard 
               budget={budget} 
@@ -82,6 +129,8 @@ const BudgetDashboard = () => {
             budget={selectedBudget} 
             onClose={handleCloseDetails} 
             onDelete={() => handleOpenDeleteDialog(selectedBudget)}
+            onUpdateBudget={handleUpdateBudget}
+            getall={getall}
           />
         )}
       </Dialog>
@@ -92,7 +141,7 @@ const BudgetDashboard = () => {
         </Typography>
         <DialogActions>
           <Button 
-          style={{ backgroundColor: '#f7f0f0', textTransform: 'none', fontSize: '16px', color: 'red'}}
+            style={{ backgroundColor: '#f7f0f0', textTransform: 'none', fontSize: '16px', color: 'red'}}
             variant="contained" 
             color="secondary" 
             onClick={handleDeleteBudget}
@@ -100,7 +149,7 @@ const BudgetDashboard = () => {
             Yes
           </Button>
           <Button 
-          style={{ backgroundColor: '#f7f0f0', textTransform: 'none', fontSize: '16px', color: '#07271F'}}
+            style={{ backgroundColor: '#f7f0f0', textTransform: 'none', fontSize: '16px', color: '#07271F'}}
             variant="contained" 
             onClick={handleCloseDeleteDialog}
           >
