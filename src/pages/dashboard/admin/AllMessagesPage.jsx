@@ -37,7 +37,7 @@ const AllMessagesPage = () => {
         <div className='pageTemplate2'>
             <h1 className='text-3xl font-bold'>All Messages</h1>
             <div className='pageTemplate3 items-stretch'>
-                <div className='grid grid-cols-10 p-2 border-2 border-gray-200 rounded-lg'>
+                <div className='grid grid-cols-10 p-2 border-2 border-gray-200 rounded-lg font-semibold'>
                     <span className='col-span-2'>Date</span>
                     <span className='col-span-5'>Text</span>
                     <span className='col-span-2'>Sender</span>

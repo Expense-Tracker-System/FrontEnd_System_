@@ -29,7 +29,7 @@ import NotFoundPage from '../pages/public/NotFoundPage';
 import RegisterPage from '../pages/public/RegisterPage';
 import UnauthorizedPage from '../pages/public/UnauthorizedPage';
 import UserBudgetPage from '../pages/dashboard/user/UserBudgetPage';
-
+import OutMessagesPage from '../pages/dashboard/admin/OutMessagesPage';
 
 
 const GlobalRouter = () => {
@@ -43,6 +43,7 @@ const GlobalRouter = () => {
             <Route element={<Layout />}>
                 {/* Public routes */}
                 <Route index element={<HomePage />} />
+                <Route path={PATH_DASHBOARD_ADMIN.home} element={<HomePage />} />
 
                 {/* Protected routes */}
                 <Route element={<AuthGuardForUser />}>
@@ -63,6 +64,7 @@ const GlobalRouter = () => {
                     <Route path={PATH_DASHBOARD_ADMIN.dashboard} element={<AdminDashboardPage />} />
                     <Route path={PATH_DASHBOARD_ADMIN.usersManagement} element={<UsersManagementPage />} />
                     <Route path={PATH_DASHBOARD_ADMIN.allMessages} element={<AllMessagesPage />} />
+                    <Route path={PATH_DASHBOARD_ADMIN.outMessages} element={<OutMessagesPage />} />
                     <Route path={PATH_DASHBOARD_ADMIN.systemLogs} element={<SystemLogsPage />} />
                     <Route path={PATH_DASHBOARD_ADMIN.sendMessage} element={<AdminSendMessagePage />} />
                     <Route path={PATH_DASHBOARD_ADMIN.inbox} element={<AdminInboxPage />} />

@@ -10,22 +10,20 @@ const BudgetCardContainer = styled(Card)(({ theme }) => ({
 }));
 
 const BudgetCard = ({ budget, onViewDetails, onDelete }) => {
-  const spent = budget.expenses.reduce((total, expense) => total + expense.amount, 0);
-  const remaining = budget.amount - spent;
-
   return (
-    <BudgetCardContainer>
+    <BudgetCardContainer sx={budget.remain < 0 && {border: '4px solid red'}} 
+     >
       <CardContent>
-        <Typography variant="h6" color="textSecondary">
+        <Typography variant="h5" color="textSecondary" sx={{fontWeight: 'bold'}}>
           {budget.budgetName}
         </Typography>
         <Typography variant="h5" component="div">
-          ${budget.amount.toFixed(2)} Budgeted
+          ${budget.budgetAmount.toFixed(2)} Budgeted
         </Typography>
-        <LinearProgress variant="determinate" value={(spent / budget.amount) * 100} />
+        <LinearProgress variant="determinate" value={(budget.spent / budget.budgetAmount) * 100} />
         <Box display="flex" justifyContent="space-between" mt={1}>
-          <Typography color="textSecondary">${spent.toFixed(2)} spent</Typography>
-          <Typography color="textSecondary">${remaining.toFixed(2)} remaining</Typography>
+          <Typography color="textSecondary" sx={{fontWeight: 'bold'}}>${budget.spent} spent</Typography>
+          <Typography color="textSecondary" sx={{fontWeight: 'bold'}}>${budget.remain} remaining</Typography>
         </Box>
         <Box display="flex" justifyContent="space-between" mt={2}>
           <Button 
@@ -37,11 +35,10 @@ const BudgetCard = ({ budget, onViewDetails, onDelete }) => {
             View Details
           </Button>
           <Button 
-          
             variant="contained" 
             color="secondary"   
-            style={{ backgroundColor: '#faeae8', textTransform: 'none', fontSize: '16px', color: 'red'}}
-            onClick={() => onDelete(budget)}
+            style={{ backgroundColor: '#faeae8', textTransform: 'none', fontSize: '16px', color: 'red', fontWeight: 'bold'}}
+            onClick={onDelete}
           >
             Delete
           </Button>

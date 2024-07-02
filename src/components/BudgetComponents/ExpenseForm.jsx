@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import { Container, TextField, Button, Box, Typography, MenuItem } from '@mui/material';
 import { styled } from '@mui/system';
+import axios from 'axios';
+import toast from 'react-hot-toast';
+import axiosInstance from '../../utils/axiosInstance';
 
 const FormContainer = styled(Box)({
   border: '1px dashed #ccc',
@@ -9,25 +12,37 @@ const FormContainer = styled(Box)({
   marginBottom: '20px'
 });
 
-const ExpenseForm = ({ onAddExpense, budgetCategories }) => {
+const ExpenseForm = ({ onAddExpense, budgetCategories,budget,getall }) => {
   const [expenseName, setExpenseName] = useState('');
   const [amount, setAmount] = useState('');
-  const [budgetCategory, setBudgetCategory] = useState('');
+  const [budgetCategory, setBudgetCategory] = useState(0);
   const [errors, setErrors] = useState({ expenseName: false, amount: false, budgetCategory: false });
 
-  const handleAddExpense = () => {
-    if (expenseName === "" || amount === "" || budgetCategory === "") {
+  const handleAddExpense = async() => {
+    if (expenseName === "" || amount <= 0 || budgetCategory === "") {
       setErrors({
         expenseName: expenseName === "",
-        amount: amount === "",
+        amount: amount <= 0 ,
         budgetCategory: budgetCategory === "",
       });
     } else {
-      onAddExpense({ expenseName, amount: parseFloat(amount), budgetCategory });
-      setExpenseName('');
-      setAmount('');
-      setBudgetCategory('');
-      setErrors({ expenseName: false, amount: false, budgetCategory: false });
+      try {
+        var response = await axiosInstance.post("/BExpenses",{
+          expenseId:0,
+          bExpenseName: expenseName,
+          bExpenseAmount: amount,
+          budgetId: budgetCategory,
+        });
+        console.log(response.data);
+        setExpenseName("");
+        setAmount(0);
+        setBudgetCategory(0);
+        getall();
+        toast.success("Expense Added successfully");
+      } catch (err) {
+        console.log(err);
+        toast.error("An Error occurred.");
+      }
     }
   };
 
@@ -67,9 +82,9 @@ const ExpenseForm = ({ onAddExpense, budgetCategories }) => {
         error={errors.budgetCategory}
         helperText={errors.budgetCategory ? "Budget Category is required" : ""}
       >
-        {budgetCategories.map((category) => (
-          <MenuItem key={category} value={category}>
-            {category}
+        {budget.map((item) => (
+          <MenuItem key={item.id} value={item.id}>
+            {item.budgetName}
           </MenuItem>
         ))}
       </TextField>

@@ -4,7 +4,10 @@ import AdminSettings from '../../../components/SettingComponenets/adminsetting/A
 const AdminSettingPage = () => {
     return (
         <div className='pageTemplate2'>
-            <h1 className='text-3xl font-bold'>Setting</h1>
+            <h1 className='text-3xl font-bold'>Settings</h1>
+
+            <AdminSettings />
+
         </div>
     )
 }

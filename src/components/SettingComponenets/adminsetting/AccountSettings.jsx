@@ -3,24 +3,25 @@ import { Box, Typography, TextField, Button, Grid } from '@mui/material';
 import axios from 'axios';
 
 const AccountSettings = () => {
-  const [name, setName] = useState('');
+  const [Fname, setFName] = useState('');
+  const [Lname, setLName] = useState('');
   const [email, setEmail] = useState('');
   const [currentUsername, setCurrentUsername] = useState('');
   const [newUsername, setNewUsername] = useState('');
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [phone, setPhone] = useState('');
-  const [address, setAddress] = useState('');
 
   const handleSaveChanges = () => {
     const updatedData = {
-      name,
+      Fname,
+      Lname,
       email,
+      currentUsername,
       newUsername,
       currentPassword,
       newPassword,
       phone,
-      address,
     };
 
     axios.post('/api/account/update', updatedData)
@@ -42,20 +43,20 @@ const AccountSettings = () => {
       <Grid container spacing={2}>
         <Grid item xs={12} sm={6}>
           <TextField
-            label="Name"
+            label="First Name"
             variant="outlined"
             value={name}
-            onChange={(e) => setName(e.target.value)}
+            onChange={(e) => setFName(e.target.value)}
             fullWidth
             margin="normal"
           />
         </Grid>
         <Grid item xs={12} sm={6}>
           <TextField
-            label="Email"
+            label="Last Name"
             variant="outlined"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            value={name}
+            onChange={(e) => setLName(e.target.value)}
             fullWidth
             margin="normal"
           />
@@ -116,10 +117,10 @@ const AccountSettings = () => {
         </Grid>
         <Grid item xs={12} sm={6}>
           <TextField
-            label="Address"
+            label="Email"
             variant="outlined"
-            value={address}
-            onChange={(e) => setAddress(e.target.value)}
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             fullWidth
             margin="normal"
           />
