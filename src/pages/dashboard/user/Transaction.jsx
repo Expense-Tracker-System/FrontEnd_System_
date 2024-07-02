@@ -6,7 +6,7 @@ const Transaction = () => {
     const [description, setDescription] = useState('');
     const [amount, setAmount] = useState('');
     const [Idescription, setIDescription] = useState('');
-    const [Iamount, seItAmount] = useState('');
+    const [Iamount, setIAmount] = useState('');
     
     const [transactions, setTransactions] = useState([]);
     const [editId, setEditId] = useState(null);
@@ -125,9 +125,20 @@ const Transaction = () => {
     };
 
     const handleEdit = (transaction) => {
+        if (transaction.amount < 0) {
+            setDescription(transaction.description);
+            setAmount(transaction.amount);
+            setIAmount("")
+            setIDescription("")
+        }
+        else{
+            setIDescription(transaction.description)
+            setIAmount(transaction.amount)
+            setDescription("")
+            setAmount("")
+        }
         setEditId(transaction.id);
-        setDescription(transaction.description);
-        setAmount(transaction.amount);
+        
     };
 
     const handleDelete = async (id) => {
@@ -145,7 +156,7 @@ const Transaction = () => {
     };
 
     const getExpenses = () => {
-        return transactions.filter(t => t.amount < 0).reduce((acc, t) => acc + t.amount, 0);
+        return transactions.filter(t => t.amount < 0).reduce((acc, t) => acc + (-t.amount), 0);
     };
 
     const getTotalAmount = () => {
@@ -163,9 +174,9 @@ const Transaction = () => {
                 <div className='container mt-10 mx-auto px-5'>
                     <div className='p-2 bg-white rounded-lg shadow-lg'>
                         <div className='flex flex-col md:flex-row'>
-                            <div className='flex flex-col w-full md:w-1/3 p-5'>
+                            <div className='flex flex-row w-full  p-5 justify-between'>
                               
-                                 <div className='rounded shadow-lg border p-5'>
+                                 <div className='rounded shadow-lg border p-5  '>
                                     <h1 className='text-xl font-sans text-center mb-5'>Add Your Income</h1>
                                     <form onSubmit={()=>addIncomeToAPI()} className='flex text-center flex-col mx-auto border-double border-indigo-50'>
                                         
@@ -175,7 +186,7 @@ const Transaction = () => {
                                             className='border border-slate-300 rounded-md w-full px-2 py-2 mb-2'
                                             placeholder='Description'
                                             value={Idescription}
-                                            onChange={(e) => setDescription(e.target.value)}
+                                            onChange={(e) => setIDescription(e.target.value)}
                                         />
                                         {errors.description && <span className='text-red-500'>{errors.description}</span>}
                                         <input
@@ -183,13 +194,25 @@ const Transaction = () => {
                                             className='border border-slate-300 rounded-md w-full px-2 py-2 mb-2'
                                             placeholder='Amount'
                                             value={Iamount}
-                                            onChange={(e) => setAmount(e.target.value)}
+                                            onChange={(e) => setIAmount(e.target.value)}
                                         />
                                         {errors.amount && <span className='text-red-500'>{errors.amount}</span>}
                                         <button className='bg-black hover:bg-violet-600 active:bg-violet-700 focus:outline-none text-white px-4 py-2 rounded-md'>{editId ? 'Update Income' : 'Add Income'}</button>
                                     </form>
+                                 </div>
+                                <div className='justify-start flex flex-col bg-white p-4 rounded shadow-lg mb-5 mr-6'>
+                                    <div className='mt-4 text-xl font-sans flex justify-between'>
+                                        <span>Income:</span> <span className='text-green-500'>{getIncome()}</span>
+                                    </div>
+                                    <div className='mt-4 text-xl font-sans flex justify-between'>
+                                        <span>Expense:</span> <span className='text-red-500'>{getExpenses()}</span>
+                                    </div>
+                                    <div className='mt-4 text-xl font-sans flex justify-between'>
+                                        <span>Total:</span> <span className={getTotalAmount() < 0 ? 'text-red-300' : 'text-black-500'}>{getTotalAmount()}</span>
+                                    </div>
+                                    
                                 </div>
-                                <div className='rounded shadow-lg border p-5'>
+                                <div className='rounded shadow-lg border p-5 justify-items-end '>
                                     <h1 className='text-xl font-sans text-center mb-5'>Add Your Expense</h1>
                                     <form onSubmit={()=>addExpenseToAPI()} className='flex text-center flex-col mx-auto border-double border-indigo-50'>
                                         
@@ -213,20 +236,11 @@ const Transaction = () => {
                                         <button className='bg-black hover:bg-violet-600 active:bg-violet-700 focus:outline-none text-white px-4 py-2 rounded-md'>{editId ? 'Update Expense' : 'Add Expense'}</button>
                                     </form>
                                 </div>
-                                <div className='justify-start flex flex-col bg-white p-4 rounded shadow-lg mb-5'>
-                                    <div className='mt-4 text-xl font-sans flex justify-between'>
-                                        <span>Income:</span> <span className='text-green-500'>{getIncome()}</span>
-                                    </div>
-                                    <div className='mt-4 text-xl font-sans flex justify-between'>
-                                        <span>Expense:</span> <span className='text-red-500'>{getExpenses()}</span>
-                                    </div>
-                                    <div className='mt-4 text-xl font-sans flex justify-between'>
-                                        <span>Total:</span> <span className={getTotalAmount() < 0 ? 'text-red-300' : 'text-green-500'}>{getTotalAmount()}</span>
-                                    </div>
-                                    
-                                </div>
+                               
                             </div>
-                            <div className='flex flex-col w-full md:w-2/4 mt-10 md:mt-0 ml-2'>
+                          
+                        </div>
+                          <div className=' w-full  mt-10 md:mt-0 ml-2'>
                                 <table className='w-full table-fixed text-left mt-4 ml-3'>
                                     <thead>
                                         <tr>
@@ -244,7 +258,7 @@ const Transaction = () => {
                                             <tr key={t.id}>
                                                 <td className='px-2 py-2'>{t.description}</td>
                                                 <td className='px-2 py-2'>{t.amount}</td>
-                                                <td className='px-2 py-2'>{t.amount}</td>
+                                                <td className='px-2 py-2'>{t.amount < 0? "Expense": "Income"}</td>
 
                                                 <td className='px-2 py-2'>
                                                     <div>
@@ -257,7 +271,6 @@ const Transaction = () => {
                                     </tbody>
                                 </table>
                             </div>
-                        </div>
                         {apiError && <div className='mt-4 text-red-500 text-center'>{apiError}</div>}
                     </div>
                 </div>
