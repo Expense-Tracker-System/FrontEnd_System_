@@ -1,11 +1,19 @@
-import React from 'react'
+
+import ReportPage from "../../../components/ReportComponents/ReportPage";
+import Chart from "../../../components/ReportComponents/Chart" ;
+
+
 
 const UserReportPage = () => {
+
+   
     return (
         <div className='pageTemplate2'>
-            <h1 className='text-3xl font-bold'>Report</h1>
-            <div>
-                <PDFGenarate/>
+            <div className="upper">
+         <ReportPage/>
+            </div>
+        <div className="lower">    
+          <Chart/>
             </div>
         </div>
     )
