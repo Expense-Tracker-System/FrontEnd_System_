@@ -12,7 +12,7 @@ const FormContainer = styled(Box)({
   marginBottom: "20px",
 });
 
-const BudgetForm = ({ onCreateBudget,getall }) => {
+const BudgetForm = ({ onCreateBudget, getall }) => {
   const [budgetName, setBudgetName] = useState("");
   const [amount, setAmount] = useState(0);
   const [description, setDescription] = useState("");
@@ -23,34 +23,44 @@ const BudgetForm = ({ onCreateBudget,getall }) => {
   });
 
   const handleCreateBudget = async () => {
-    if (budgetName === "" || amount <= 0   || description === "") {
+    if (budgetName === "" || amount <= 0 || description === "") {
       setErrors({
         budgetName: budgetName === "",
-        amount: amount <=0 ,
+        amount: amount <= 0,
         description: description === "",
       });
     } else {
       try {
-        var response = await axiosInstance.post("/Budgets", {
+        // Fetch existing budgets to check for duplicates
+        const response = await axiosInstance.get("/Budgets");
+        const existingBudgets = response.data;
+
+        // Check if the budget name already exists
+        const budgetExists = existingBudgets.some(
+          (budget) => budget.budgetName.toLowerCase() === budgetName.toLowerCase()
+        );
+
+        if (budgetExists) {
+          toast.error("Budget with this name already exists.");
+          return;
+        }
+
+        // Proceed to create the budget if it doesn't exist
+        await axiosInstance.post("/Budgets", {
           budgetName: budgetName,
           budgetAmount: amount,
           budgetDescription: description,
         });
+
         setBudgetName("");
         setAmount(0);
         setDescription("");
-        console.log(response);
         getall();
-        toast.success("Budget Set successfully");
+        toast.success("Budget set successfully");
       } catch (err) {
         console.log(err);
-        toast.error("An Error occurred.");
+        toast.error("An error occurred.");
       }
-      // onCreateBudget({ budgetName, amount: parseFloat(amount), description });
-      // setBudgetName("");
-      // setAmount("");
-      // setDescription("");
-      // setErrors({ budgetName: false, amount: false, description: false });
     }
   };
 

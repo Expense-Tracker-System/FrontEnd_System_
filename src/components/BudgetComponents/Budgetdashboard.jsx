@@ -141,7 +141,15 @@ const BudgetDashboard = () => {
         </Typography>
         <DialogActions>
           <Button 
-            style={{ backgroundColor: '#f7f0f0', textTransform: 'none', fontSize: '16px', color: 'red'}}
+            sx={{
+              backgroundColor: '#f7f0f0',
+              textTransform: 'none',
+              fontSize: '16px',
+              color: 'red',
+              '&:hover': {
+                backgroundColor: '#f4cccc', 
+              },
+            }}
             variant="contained" 
             color="secondary" 
             onClick={handleDeleteBudget}
@@ -149,7 +157,15 @@ const BudgetDashboard = () => {
             Yes
           </Button>
           <Button 
-            style={{ backgroundColor: '#f7f0f0', textTransform: 'none', fontSize: '16px', color: '#07271F'}}
+            sx={{
+              backgroundColor: '#f7f0f0',
+              textTransform: 'none',
+              fontSize: '16px',
+              color: '#07271F',
+              '&:hover': {
+                backgroundColor: '#e0f7fa', 
+              },
+            }}
             variant="contained" 
             onClick={handleCloseDeleteDialog}
           >

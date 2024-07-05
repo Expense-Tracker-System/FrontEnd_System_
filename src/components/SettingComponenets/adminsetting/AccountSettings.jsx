@@ -1,51 +1,92 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Box, Typography, TextField, Button, Grid } from '@mui/material';
-import axios from 'axios';
+import ConfirmationDialog from './ConfirmationDialog'; // Adjust the import path as needed
+import axiosInstance from '../../../utils/axiosInstance';
 
 const AccountSettings = () => {
   const [Fname, setFName] = useState('');
   const [Lname, setLName] = useState('');
   const [email, setEmail] = useState('');
-  const [currentUsername, setCurrentUsername] = useState('');
-  const [newUsername, setNewUsername] = useState('');
+  const [phone, setPhone] = useState('');
+  const [username, setusername] = useState('');
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
-  const [phone, setPhone] = useState('');
+  const [confirmNewPassword, setConfirmNewPassword] = useState('');
+
+  const [openDialog, setOpenDialog] = useState(false);
+  const [updateType, setUpdateType] = useState(''); // 'account', 'username', or 'password'
+  const [dataset, setdataset] = useState({});
 
   const handleSaveChanges = () => {
     const updatedData = {
       Fname,
       Lname,
-      email,
-      currentUsername,
-      newUsername,
+      email, 
+      username,
       currentPassword,
       newPassword,
       phone,
     };
+  };
+  const getall = async () => {
+    try {
+      const response = await axiosInstance.get("/Adminsetting");
+      console.log(response.data);
+      setFName(response.data[0].firstName);
+      setLName(response.data[0].lastName);
+      setEmail(response.data[0].email);
+      setPhone(response.data[0].phoneNumber);
+      setusername(response.data[0].username);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  useEffect(() => { getall() }, []);
 
-    axios.post('/api/account/update', updatedData)
-      .then(response => {
-        console.log('Changes saved successfully:', response.data);
-        // Handle success (e.g., show a success message or update UI)
-      })
-      .catch(error => {
-        console.error('Error saving changes:', error);
-        // Handle error (e.g., show an error message)
+  const editprofile = async () => {
+    try {
+      const response = await axiosInstance.put("/Adminsetting/update",{
+        firstName: Fname,
+        lastName: Lname,
+        username: username,
+        email: email,
+        phoneNumber: phone,
+        password: "pwd",
+        confirmPassword: "pwd"
       });
+      getall();
+      console.log(response.data);
+      handleDialogClose();
+
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  const handleOpenDialog = (type) => {
+    setUpdateType(type);
+    setOpenDialog(true);
+  };
+
+  const handleDialogClose = () => {
+    setOpenDialog(false);
+  };
+
+  const handleDialogConfirm = () => {
+    handleSaveChanges();
   };
 
   return (
     <Box>
-      <Typography variant="h6" gutterBottom>
+      <Typography variant="h6" gutterBottom sx={{ fontWeight: '500' }}>
         Account Settings
       </Typography>
       <Grid container spacing={2}>
-        <Grid item xs={12} sm={6}>
+        <Grid item xs={10} sm={6}>
           <TextField
             label="First Name"
             variant="outlined"
-            value={name}
+            defaultValue={Fname}
+            value={Fname}
             onChange={(e) => setFName(e.target.value)}
             fullWidth
             margin="normal"
@@ -55,35 +96,60 @@ const AccountSettings = () => {
           <TextField
             label="Last Name"
             variant="outlined"
-            value={name}
+            defaultValue={Lname}
+            value={Lname}
             onChange={(e) => setLName(e.target.value)}
             fullWidth
             margin="normal"
           />
         </Grid>
-        <Grid item xs={12}>
-          <Typography variant="subtitle1" gutterBottom>
-            Change Username
-          </Typography>
+        <Grid item xs={12} sm={6}>
           <TextField
-            label="Current Username"
+            label="Phone Number"
             variant="outlined"
-            value={currentUsername}
-            onChange={(e) => setCurrentUsername(e.target.value)}
+            defaultValue={phone}
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
             fullWidth
             margin="normal"
           />
+        </Grid>
+        <Grid item xs={12} sm={6}>
           <TextField
-            label="New Username"
+            label="Email"
             variant="outlined"
-            value={newUsername}
-            onChange={(e) => setNewUsername(e.target.value)}
+            defaultValue={email}
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             fullWidth
             margin="normal"
           />
         </Grid>
         <Grid item xs={12}>
-          <Typography variant="subtitle1" gutterBottom>
+          <TextField
+            label="Username"
+            variant="outlined"
+            defaultValue={username}
+            value={username}
+            onChange={(e) => setusername(e.target.value)}
+            fullWidth
+            margin="normal"
+          />
+        </Grid>
+      </Grid>
+
+      <Button
+        variant="contained"
+        color="primary"
+        onClick={() => handleOpenDialog('username')}
+        sx={{ backgroundColor: '#07271F', "&:hover": { backgroundColor: "#07271F" }, marginTop: '15px' }}
+      >
+        Save Changes
+      </Button>
+
+      <Grid container spacing={6} sx={{ paddingTop: '30px' }}>
+        <Grid item xs={12}>
+          <Typography variant="h6" gutterBottom sx={{ fontWeight: '500' }}>
             Change Password
           </Typography>
           <TextField
@@ -104,33 +170,32 @@ const AccountSettings = () => {
             fullWidth
             margin="normal"
           />
-        </Grid>
-        <Grid item xs={12} sm={6}>
           <TextField
-            label="Phone Number"
+            label="Confirm New Password"
             variant="outlined"
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-            fullWidth
-            margin="normal"
-          />
-        </Grid>
-        <Grid item xs={12} sm={6}>
-          <TextField
-            label="Email"
-            variant="outlined"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            type="password"
+            value={confirmNewPassword}
+            onChange={(e) => setConfirmNewPassword(e.target.value)}
             fullWidth
             margin="normal"
           />
         </Grid>
       </Grid>
-      <Box mt={2}>
-        <Button variant="contained" color="primary" onClick={handleSaveChanges} sx={{backgroundColor: '#07271F',"&:hover": { backgroundColor: "#07271F" }}}>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={() => handleOpenDialog('password')}
+          sx={{ backgroundColor: '#07271F', "&:hover": { backgroundColor: "#07271F" }, marginTop: '15px' }}
+        >
           Save Changes
         </Button>
-      </Box>
+
+      <ConfirmationDialog
+        open={openDialog}
+        onClose={handleDialogClose}
+        onConfirm={handleDialogConfirm}
+        editprofile={editprofile}
+      />
     </Box>
   );
 };
