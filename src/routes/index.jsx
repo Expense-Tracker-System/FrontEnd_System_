@@ -37,6 +37,7 @@ const GlobalRouter = () => {
         <Routes>
             <Route path={PATH_PUBLIC.register} element={<RegisterPage />} />
             <Route path={PATH_PUBLIC.login} element={<LoginPage />} />
+            <Route path={PATH_DASHBOARD_ADMIN.login} element={<LoginPage />} />
             <Route path={PATH_PUBLIC.unauthorized} element={<UnauthorizedPage />} />
 
             {/* <Route path='' element /> */}

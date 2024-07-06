@@ -82,15 +82,21 @@ const Header = () => {
                         </div>
                     ) : (
                         <div className='flex items-center gap-2 px-5'>
-                            <Button
-                                label='Register'
-                                onClick={() => navigate(PATH_PUBLIC.register)}
-                                type='button'
-                                variant='light'
-                            />
+                            {
+                                location.pathname.startsWith(PATH_DASHBOARD_ADMIN.home) ? (
+                                    <div></div>
+                                ) : (
+                                    <Button
+                                    label='Register'
+                                    onClick={() => navigate(PATH_PUBLIC.register)}
+                                    type='button'
+                                    variant='light'
+                                />
+                                )
+                            }
                             <Button
                                 label='Login'
-                                onClick={() => navigate(PATH_PUBLIC.login)}
+                                onClick={() => location.pathname.startsWith(PATH_DASHBOARD_ADMIN.home) ? navigate(PATH_DASHBOARD_ADMIN.login) : navigate(PATH_PUBLIC.login)}
                                 type='button'
                                 variant='light'
                             />

@@ -11,7 +11,7 @@ import axiosInstance from '../utils/axiosInstance';
 
 import toast from 'react-hot-toast';
 
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 import { 
     LOGIN_URL,
@@ -22,6 +22,7 @@ import {
     PATH_AFTER_LOGOUT,
     REGISTER_URL,
 } from '../utils/globalConfig';
+import { PATH_DASHBOARD_ADMIN } from '../routes/paths';
 
 // We need a reducer function for useReducer hook
 const authReducer = (state,action) => {
@@ -58,6 +59,7 @@ export const AuthContext = createContext(null);
 const AuthContextProvider = ({ children }) => {
     const [state, dispatch] = useReducer(authReducer,initialAuthState);
     const navigate = useNavigate();
+    const location = useLocation();
 
     // Initialize Method
     const initializeAuthContext = useCallback(async () => {
@@ -107,6 +109,7 @@ const AuthContextProvider = ({ children }) => {
             phoneNumber,
             password,
             confirmPassword,
+            pathName
         });
         console.log('Register Result:', response);
         toast.success('Register Was Successfull. Please Login.');
@@ -114,11 +117,11 @@ const AuthContextProvider = ({ children }) => {
     },[]);
 
     //Login Method
-    const login = useCallback(async (userName,password,mode) => {
+    const login = useCallback(async (userName,password,pathName) => {
         const response = await axiosInstance.post(LOGIN_URL, {
             userName,
             password,
-            mode,
+            pathName
         });
         toast.success('Login Was Successful');
 
@@ -130,7 +133,7 @@ const AuthContextProvider = ({ children }) => {
             payload: userInfo,
         });
         // console.log(userInfo.roles);
-        userInfo.roles == "Admin" ? navigate(PATH_AFTER_LOGIN_ADMIN) : navigate(PATH_AFTER_LOGIN_USER);
+        userInfo.roles.includes("ADMIN") ? navigate(PATH_AFTER_LOGIN_ADMIN) : navigate(PATH_AFTER_LOGIN_USER);
     },[]);
 
     // Logout Method
