@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Box, Typography, TextField, Button, Grid } from '@mui/material';
 import ConfirmationDialog from './ConfirmationDialog'; // Adjust the import path as needed
 import axiosInstance from '../../../utils/axiosInstance';
+import { toast } from 'react-hot-toast';
 
 const AccountSettings = () => {
   const [Fname, setFName] = useState('');
@@ -56,10 +57,12 @@ const AccountSettings = () => {
       });
       getall();
       console.log(response.data);
+      toast.success('Profile updated successfully');
       handleDialogClose();
 
     } catch (error) {
       console.log(error);
+      toast.error('Failed to update profile.');
     }
   };
   const handleOpenDialog = (type) => {

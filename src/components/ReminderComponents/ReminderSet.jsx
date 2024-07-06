@@ -5,14 +5,14 @@ import DialogTitle from "@mui/material/DialogTitle";
 import DialogContent from "@mui/material/DialogContent";
 import DialogActions from "@mui/material/DialogActions";
 import TextField from "@mui/material/TextField";
-import { DialogContentText } from "@mui/material";
-import moment from "moment";
+import { DialogContentText, CircularProgress } from "@mui/material";
 import { toast } from 'react-hot-toast';
 import axiosInstance from "../../utils/axiosInstance";
 
 const ReminderSet = ({ open, setOpen, rdate, addEvent, setCount, setOpenSet }) => {
   const [nameError, setNameError] = useState("");
   const [amountError, setAmountError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleClose = () => {
     setOpen(false);
@@ -51,13 +51,6 @@ const ReminderSet = ({ open, setOpen, rdate, addEvent, setCount, setOpenSet }) =
       .toString()
       .padStart(2, "0")}.${date.getMilliseconds().toString().padStart(3, "0")}`;
 
-    const newEvent = {
-      start: startformattedDate,
-      end: startformattedDate,
-      title: formJson.name,
-      amount: formJson.amount,
-      description: formJson.desc,
-    };
     const tempEvent = {
       ReminderstartDate: startformattedDate,
       ReminderendDate: startformattedDate,
@@ -65,6 +58,9 @@ const ReminderSet = ({ open, setOpen, rdate, addEvent, setCount, setOpenSet }) =
       ReminderAmount: formJson.amount,
       ReminderDescription: formJson.desc,
     };
+
+    setLoading(true); // Set loading state to true
+
     try {
       await axiosInstance.post("/Reminders", tempEvent);
       handleClose();
@@ -73,6 +69,8 @@ const ReminderSet = ({ open, setOpen, rdate, addEvent, setCount, setOpenSet }) =
     } catch (err) {
       console.log(err);
       toast.error('An error occurred.');
+    } finally {
+      setLoading(false); // Set loading state to false after submission completes
     }
     setOpenSet(false);
   };
@@ -140,11 +138,11 @@ const ReminderSet = ({ open, setOpen, rdate, addEvent, setCount, setOpenSet }) =
         />
       </DialogContent>
       <DialogActions>
-        <Button onClick={handleClose} sx={{ fontWeight: "bold" }}>
+        <Button onClick={handleClose} sx={{ fontWeight: "bold" }} disabled={loading}>
           Cancel
         </Button>
-        <Button type="submit" sx={{ fontWeight: "bold" }}>
-          Subscribe
+        <Button type="submit" sx={{ fontWeight: "bold" }} disabled={loading}>
+          {loading ? <CircularProgress size={24} /> : 'Subscribe'}
         </Button>
       </DialogActions>
     </Dialog>

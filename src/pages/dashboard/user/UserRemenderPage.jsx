@@ -18,7 +18,7 @@ const UserRemenderPage = () => {
   return (
     <div className="pageTemplate2">
       <div className="header">
-        <h1 className="text-3xl font-bold">Reminder</h1>
+        <h1 className="text-3xl font-bold">Reminders</h1>
         <IconButton
           aria-label="notifications"
           sx={{ fontSize: "2rem", color: "#07271F" }}
