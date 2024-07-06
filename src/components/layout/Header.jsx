@@ -7,14 +7,14 @@ import { PATH_DASHBOARD_ADMIN, PATH_DASHBOARD_USER, PATH_PUBLIC } from '../../ro
 import { useContext } from 'react';
 // import { RiAdminFill } from "react-icons/ri";
 // import { FaUser } from "react-icons/fa6";
-import ModeContext from '../../auth/mode.context';
+// import ModeContext from '../../auth/mode.context';
 
 const Header = () => {
     const { isAuthenticated, isAuthLoading, user, logout } = useAuth();
     const navigate = useNavigate();
     const location = useLocation();
 
-    const { mode, toggleMode } = useContext(ModeContext);
+    // const { mode, toggleMode } = useContext(ModeContext);
 
     const userRolesLabelCreator = () => {
         if (user && user.roles) {
@@ -31,7 +31,7 @@ const Header = () => {
                     onClick={() => navigate('/')}
                 />
                 {
-                    location.pathname !== PATH_DASHBOARD_ADMIN.home ? (
+                    !location.pathname.startsWith(PATH_DASHBOARD_ADMIN.home) ? (
                         isAuthenticated ? (
                             <div></div>
                         ) : (
