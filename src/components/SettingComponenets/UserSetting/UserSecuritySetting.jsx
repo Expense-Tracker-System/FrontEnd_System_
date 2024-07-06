@@ -5,6 +5,7 @@ const UserSecuritySetting = () => {
     const [deactivationReason, setDeactivationReason] = useState('');
     const [otherReason, setOtherReason] = useState('');
     const [reactivationDate, setReactivationDate] = useState('');
+    const [twoFactor, setTwoFactor] = useState(false);
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -128,6 +129,28 @@ const UserSecuritySetting = () => {
                         </div>
                     </div>
                 )}
+            </div>
+            <div className='px-5 py-2 border-2 border-[#ededed] rounded-lg mt-2'>
+                <form>
+                    <h2 className='text-2xl font-bold mb-4'>Two-Factor Authentication</h2>
+                    <div className=''>
+                        <label className='flex items-center justify-between'>
+                            <span className=''>Enable Two-Factor</span>
+                            <input
+                                type='checkbox'
+                                className='toggle-switch'
+                                checked={twoFactor}
+                                onChange={(e) => setTwoFactor(e.target.checked)}
+                                />
+                        </label>
+                    </div>
+                    <button
+                        type="submit"
+                        className="mt-4 px-4 py-2 bg-primary-600 text-black rounded-md"
+                    >
+                        Save
+                    </button>
+                </form>
             </div>
         </div>
     )
