@@ -21,6 +21,7 @@ export const PATH_DASHBOARD_USER = {
 }
 
 export const PATH_DASHBOARD_ADMIN = {
+    home: '/admin',
     dashboard: '/admin/dashboard',
     dashboardAdmin: '/admin/dashboard/admin-dashboard',
     usersManagement: '/admin/dashboard/users-management',

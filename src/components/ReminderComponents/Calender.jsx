@@ -5,12 +5,9 @@ import "react-big-calendar/lib/css/react-big-calendar.css";
 import ReminderSet from "./ReminderSet";
 import ReminderDetail from "./ReminderDetail";
 import { Dialog, DialogTitle, DialogContent, Button } from "@mui/material";
-import axios from "axios";
+import axiosInstance from "../../utils/axiosInstance";
 
 const localizer = momentLocalizer(moment);
-
-
-
 
 const MyCalendar = () => {
   const [events, setEvents] = useState([]);
@@ -20,10 +17,8 @@ const MyCalendar = () => {
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [count, setCount] = useState(0);
 
-  const [tempevents, Settempevents] = useState([]);
-
   const handlePopup = ({ start }) => {
-    const selectedDate = moment(start).format('YYYY-MM-DD');
+    const selectedDate = moment(start).format("YYYY-MM-DD");
     setrdate(selectedDate);
     setOpenSet(true);
   };
@@ -34,47 +29,36 @@ const MyCalendar = () => {
   };
 
   const handleDelete = () => {
-    setEvents(events.filter(event => event !== selectedEvent));
+    setEvents(events.filter((ev) => ev.id !== selectedEvent.id)); // Remove event from events list
     setOpenDetail(false);
   };
 
   const addEvent = (newEvent) => {
-    setEvents(prevEvents => [...prevEvents, newEvent]);
+    setEvents((prevEvents) => [...prevEvents, newEvent]);
     setOpenSet(false);
   };
 
-  
   useEffect(() => {
     document.body.style.margin = "0";
-    axios
-      .get(
-        "https://localhost:7026/api/Reminders",
-      ).then((response) => {
+    axiosInstance
+      .get("/Reminders")
+      .then((response) => {
         const data = response.data;
-        console.log(data);
-        
-        const newItems = [];
-        for (let i = 0; i < data.length; i++) {
-          const newEvent = {
-            id: data[i].reminderId,
-            start: data[i].reminderstartDate,
-            end: data[i].reminderendDate,
-            title: data[i].reminderName,
-            amount: data[i].reminderAmount,
-            description: data[i].reminderDescription,
-
-          };
-          newItems.push(newEvent);
-          console.log("newevent" ,newEvent);
-      }
-      setEvents(newItems);
+        const newItems = data.map((item) => ({
+          id: item.reminderId,
+          start: new Date(item.reminderstartDate),
+          end: new Date(item.reminderendDate),
+          title: item.reminderName,
+          amount: item.reminderAmount,
+          description: item.reminderDescription,
+          isPaymentDone: item.isPaymentDone, // Assuming there's an isPaymentDone property
+        }));
+        setEvents(newItems);
       })
       .catch((error) => {
-        console.error("Error fetching appointments:", error);
+        console.error("Error fetching reminders:", error);
       });
   }, [count]);
-
-
 
   return (
     <div>
@@ -86,6 +70,12 @@ const MyCalendar = () => {
           .rbc-today {
             background-color: #4ADE80 !important;
           }
+          .rbc-event-paid {
+            background-color: #4ADE80; /* Paid event color */
+          }
+          // .rbc-event-unpaid {
+          //   background-color: #07271F; /* Unpaid event color */
+          // }
         `}
       </style>
       <Calendar
@@ -98,9 +88,19 @@ const MyCalendar = () => {
         onSelectEvent={handleEventClick}
         style={{ height: 600 }}
         views={{ month: true }}
+        eventPropGetter={(event) => ({
+          className: event.isPaymentDone ? "rbc-event-paid" : "rbc-event-unpaid",
+        })}
       />
 
-      <ReminderSet rdate={rdate} open={openSet} setOpen={setOpenSet} addEvent={addEvent} setCount={setCount} setOpenSet={setOpenSet} />
+      <ReminderSet
+        rdate={rdate}
+        open={openSet}
+        setOpen={setOpenSet}
+        addEvent={addEvent}
+        setCount={setCount}
+        setOpenSet={setOpenSet}
+      />
       <ReminderDetail
         event={selectedEvent}
         open={openDetail}

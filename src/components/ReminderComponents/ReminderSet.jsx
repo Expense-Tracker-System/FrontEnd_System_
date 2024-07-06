@@ -7,15 +7,13 @@ import DialogActions from "@mui/material/DialogActions";
 import TextField from "@mui/material/TextField";
 import { DialogContentText } from "@mui/material";
 import moment from "moment";
-import axios from "axios";
 import { toast } from 'react-hot-toast';
+import axiosInstance from "../../utils/axiosInstance";
 
 const ReminderSet = ({ open, setOpen, rdate, addEvent, setCount, setOpenSet }) => {
   const handleClose = () => {
     setOpen(false);
   };
-
-
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -50,8 +48,8 @@ const ReminderSet = ({ open, setOpen, rdate, addEvent, setCount, setOpenSet }) =
       ReminderDescription: formJson.desc,
     };
     try {
-      var response = await axios.post(
-        "https://localhost:7026/api/Reminders",
+      var response = await axiosInstance.post(
+        "/Reminders",
         tempEvent
       );
       handleClose();
