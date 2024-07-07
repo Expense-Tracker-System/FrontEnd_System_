@@ -3,18 +3,21 @@ import InputField from "../../general/InputField"
 import { yupResolver } from "@hookform/resolvers/yup"
 import * as Yup from 'yup';
 import Button from "../../general/Button";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Spinner from "../../general/Spinner";
 import useAuth from '../../../hooks/useAuth.hook';
 import toast from "react-hot-toast";
 import { FaCamera } from 'react-icons/fa';
 import axiosInstance from "../../../utils/axiosInstance";
-import { ADD_USER_IMAGE } from '../../../utils/globalConfig';
+import { ADD_USER_IMAGE, UPDATE_USER_IMAGE } from '../../../utils/globalConfig';
 
 const UserProfileSetting = () => {
-    const { user } = useAuth();
+    const { user, updateUserProfile } = useAuth();
     const [loadingHandleFile, setLoadingHandleFile] = useState(false);
+    const [loadingUserProfile, setLoadingUserProfile] = useState(false);
+    const [loadingHandleFileUpdate, setLoadingHandleFileUpdate] = useState(false);
     const [loading, setLoading] = useState(false);
+    const fileInputRef = useRef(null);
 
     // userFirstNameLastName form validation... 
     const updateUserProfile_ = Yup.object().shape({
@@ -22,7 +25,7 @@ const UserProfileSetting = () => {
             .required('First Name is required'),
         userLastName: Yup.string()
             .required('Last Name is reqiured'),
-        userEmail : Yup.string()
+        userEmail: Yup.string()
             .required('User Email is required')
             .email('Input text must be a valid email'),
         userPhoneNumber: Yup.string()
@@ -69,7 +72,7 @@ const UserProfileSetting = () => {
     });
 
 
-    // userPassword form setup...
+    // userProfile form setup...
     const {
         control: controlUserProfile,                     // An object -> register input -> form...
         handleSubmit: handleSubmitUserProfile,           // A function -> handel the form submition...
@@ -85,22 +88,42 @@ const UserProfileSetting = () => {
         }
     });
 
+    // useEffect hook
+    useEffect(() => {
+        restetUserProfile({
+            userFirstName: user.firstName,
+            userLastName: user.lastName,
+            userEmail: user.email,
+            userPhoneNumber: user.phoneNumber,
+        })
+    }, [user, restetUserProfile]);
+
     // API endpoint calling...
-    const onSubmitUserProfile = () => {
+    const onSubmitUserProfile = async (submittedData) => {
+        try {
+            setLoadingUserProfile(true);
+            await updateUserProfile(submittedData.userFirstName, submittedData.userLastName, submittedData.userEmail, submittedData.userPhoneNumber);
+            setLoadingUserProfile(false)
+            restetUserProfile();
+        } catch (error) {
+            setLoadingUserProfile(false);
+            resetUserPassword();
+            toast.error('Án error occured. please contact admin');
+        }
 
     };
 
     // API endpoint calling...
     const handleFileChange = async (event) => {
-        if (!event.target.files[0]) {
-            toast.error('please select an image');
-            return;
-        }
-
-        let formData = new FormData();
-        formData.append('ImageFile', event.target.files[0]); // selectedFile should be the file object
-
         try {
+            if (!event.target.files[0]) {
+                toast.error('please select an image');
+                return;
+            }
+    
+            let formData = new FormData();
+            formData.append('ImageFile', event.target.files[0]); // selectedFile should be the file object
+
             setLoadingHandleFile(true);
             await axiosInstance.post(ADD_USER_IMAGE, formData);
             setLoadingHandleFile(false);
@@ -110,6 +133,34 @@ const UserProfileSetting = () => {
             toast.error('An error occurred. Please contact admin', error.message);
         }
     };
+
+    // Trigger the input DOM element
+    const handleButtonClick = () => {
+        if (fileInputRef.current) {
+            fileInputRef.current.click();
+        }
+    };
+
+    // -----
+    const handleFileChangeUpdate = async(event) => {
+        try{
+            if (!event.target.files[0]) {
+                toast.error('please select an image');
+                return;
+            }
+
+            let formData = new FormData();
+            formData.append('ImageFile', event.target.files[0]); // selectedFile should be the file object
+
+            setLoadingHandleFileUpdate(true);
+            await axiosInstance.put(UPDATE_USER_IMAGE, formData);
+            setLoadingHandleFileUpdate(false);
+            toast.success('user image updated sucessfully');
+        } catch (error) {
+            setLoadingHandleFileUpdate(false);
+            toast.error('An error occurred. Please contact admin', error.message);
+        }
+    }
 
     // ----
     if (loadingHandleFile) {
@@ -130,7 +181,12 @@ const UserProfileSetting = () => {
                         <label htmlFor='file' className="absolute bottom-0 text-2xl text-[#a2a8a6]"><FaCamera /></label>
                     </div>
                     <div className="flex items-center gap-3">
-                        <Button variant={'secondary'} type={'button'} label={'Update'} onClick={() => { }} loading={loading} />
+                        <div>
+                            <input type="file" id="updateFile" className="hidden" ref={fileInputRef} onChange={handleFileChangeUpdate} />
+                            <label htmlFor="updateFile">
+                                <Button variant="secondary" type="button" label="Update" onClick={() => handleButtonClick()} loading={loading} />
+                            </label>
+                        </div>
                         <Button variant={'primary'} type={'button'} label={'Delete'} onClick={() => { }} loading={loading} />
                     </div>
                 </form>
@@ -152,8 +208,8 @@ const UserProfileSetting = () => {
                         <InputField control={controlUserProfile} label={'Phone Number'} inputName={'userPhoneNumber'} error={errorsUserProfile.userPhoneNumber?.message} />
                     </div>
                     <div className="flex justify-end items-center gap-3 pr-12 py-4">
-                        <Button variant={'secondary'} type={'button'} label={'Discard'} onClick={() => restetUserProfile()} loading={loading} />
-                        <Button variant={'primary'} type={'submit'} label={'Update'} onClick={() => {}} loading={loading} />
+                        <Button variant={'secondary'} type={'button'} label={'Discard'} onClick={() => restetUserProfile()} />
+                        <Button variant={'primary'} type={'submit'} label={'Update'} onClick={() => { }} loading={loadingUserProfile} />
                     </div>
                 </form>
             </div>

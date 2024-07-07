@@ -23,6 +23,7 @@ import {
     REGISTER_URL,
     UPDATE_USER_USERNAME,
     UPDATE_USER_PASSWORD,
+    UPDATE_USER_PROFILE,
 } from '../utils/globalConfig';
 
 // We need a reducer function for useReducer hook
@@ -52,6 +53,14 @@ const authReducer = (state,action) => {
         }
     }
     if(action.type == 'UPDATE_USERPASSWORD'){
+        return {
+            ...state,
+            isAuthenticated: true,
+            isAuthLoading: false,
+            user: action.payload
+        }
+    }
+    if(action.type == 'UPDATE_USER_PROFILE'){
         return {
             ...state,
             isAuthenticated: true,
@@ -194,6 +203,24 @@ const AuthContextProvider = ({ children }) => {
         });
     });
 
+    // Update UserProfile
+    const updateUserProfile = useCallback(async(userFirstName,userLastName,userEmail,userPhoneNumber) => {
+        const response = await axiosInstance.put(UPDATE_USER_PROFILE, {
+            userFirstName,
+            userLastName,
+            userEmail,
+            userPhoneNumber,
+        });
+        toast.success('Update User Profile Successfully');
+
+        const { newToken, userInfo } = response.data;
+        setSession(newToken);
+        dispatch({
+            type: 'UPDATE_USER_PROFILE',
+            payload: userInfo
+        });
+    });
+
     // We create an object for values of context provider
     // This will keep our codes more readable
     const valuesObject = {
@@ -205,6 +232,7 @@ const AuthContextProvider = ({ children }) => {
         logout,
         updateUserName,
         updateUserPassword,
+        updateUserProfile,
     };
 
     return ( <AuthContext.Provider value={valuesObject}>{children}</AuthContext.Provider> )

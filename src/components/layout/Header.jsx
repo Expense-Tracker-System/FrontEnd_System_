@@ -69,7 +69,7 @@ const Header = () => {
                         <div className='flex items-center gap-2'>
                             <Button
                                 label='Dashboard'
-                                onClick={() => user.roles == "Admin" ? navigate(PATH_DASHBOARD_ADMIN.dashboard) : navigate(PATH_DASHBOARD_USER.dashboard)}
+                                onClick={() => user.roles.includes("ADMIN") ? navigate(PATH_DASHBOARD_ADMIN.dashboard) : navigate(PATH_DASHBOARD_USER.dashboard)}
                                 type='button'
                                 variant='light'
                             />
