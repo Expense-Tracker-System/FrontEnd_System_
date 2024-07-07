@@ -11,7 +11,7 @@ const Transaction = () => {
     const [editId, setEditId] = useState(null);
     const [errors, setErrors] = useState({});
     const [apiError, setApiError] = useState('');
-    const [transactions, setTransactions] = useState([]); // added back transactions state
+    const [transactions, setTransactions] = useState([]);
 
     const validateIncomeForm = () => {
         const validationErrors = {};
@@ -38,15 +38,13 @@ const Transaction = () => {
     };
 
     const addIncomeToAPI = async () => {
-
         if (!validateIncomeForm()) return;
-
         try {
-            var model = {
+            const model = {
                 amount: parseFloat(Iamount),
                 description: Idescription
-            }
-            const result = await axiosInstance.post("/Transaction/AddTransaction",model);
+            };
+            const result = await axiosInstance.post("/Transaction/AddTransaction", model);
             setTransactions([...transactions, result.data]);
             setIDescription('');
             setIAmount('');
@@ -59,13 +57,11 @@ const Transaction = () => {
     const addExpenseToAPI = async () => {
         if (!validateExpenseForm()) return;
         try {
-            
-            const result = await axiosInstance.post("/Transaction/AddTransaction", {
-                id: 0,
+            const model = {
                 amount: -parseFloat(amount),
                 description: description
-            });
-            console.log('result', result)
+            };
+            const result = await axiosInstance.post("/Transaction/AddTransaction", model);
             setTransactions([...transactions, result.data]);
             setDescription('');
             setAmount('');
@@ -77,7 +73,8 @@ const Transaction = () => {
 
     const updateTransactionInAPI = async (id, transaction) => {
         try {
-            await axiosInstance.put(`/Transaction/${id}`, transaction);
+            await axiosInstance.put(`/Transaction/UpdateTransaction`, transaction);
+            getList(); // Refresh the list after update
         } catch (error) {
             console.error("There was an error updating the transaction!", error);
             throw error;
@@ -111,11 +108,11 @@ const Transaction = () => {
 
     const handleDelete = async (id) => {
         try {
-            await axiosInstance.delete(`/Transaction/${id}`);
+            await axiosInstance.delete(`/Transaction/DeleteTransaction/${id}`);
             setTransactions(transactions.filter((t) => t.id !== id));
         } catch (error) {
-            console.error("There was an error deleting the transaction!", error);
-            setApiError('There was an error deleting the transaction. Please try again.');
+console.log(error)         
+   setApiError('There was an error deleting the transaction. Please try again.');
         }
     };
 
@@ -165,17 +162,6 @@ const Transaction = () => {
                                         <button className='bg-black hover:bg-violet-600 active:bg-violet-700 focus:outline-none text-white px-4 py-2 rounded-md'>{editId ? 'Update Income' : 'Add Income'}</button>
                                     </form>
                                 </div>
-                                <div className='justify-start flex flex-col bg-white p-4 rounded shadow-lg mb-5 mr-6'>
-                                    <div className='mt-4 text-xl font-sans flex justify-between'>
-                                        <span>Income:</span> <span className='text-green-500'>{getIncome()}</span>
-                                    </div>
-                                    <div className='mt-4 text-xl font-sans flex justify-between'>
-                                        <span>Expense:</span> <span className='text-red-500'>{getExpenses()}</span>
-                                    </div>
-                                    <div className='mt-4 text-xl font-sans flex justify-between'>
-                                        <span>Total:</span> <span className={getTotalAmount() < 0 ? 'text-red-300' : 'text-black-500'}>{getTotalAmount()}</span>
-                                    </div>
-                                </div>
                                 <div className='rounded shadow-lg border p-5'>
                                     <h1 className='text-xl font-sans text-center mb-5'>Add Your Expense</h1>
                                     <form onSubmit={(e) => { e.preventDefault(); addExpenseToAPI(); }} className='flex text-center flex-col mx-auto border-double border-indigo-50'>
@@ -200,34 +186,61 @@ const Transaction = () => {
                                 </div>
                             </div>
                         </div>
-                        <div className='w-full mt-10 md:mt-0 ml-2'>
-                            <table className='w-full table-fixed text-left mt-4 ml-3'>
+                        {apiError && <div className='text-red-500 text-center'>{apiError}</div>}
+                        <div className='mt-5'>
+                            <div className='flex justify-between'>
+                                <div className='p-4 bg-green-200 rounded-lg'>
+                                    <h3 className='text-xl font-semibold'>Total Income</h3>
+                                    <p className='text-2xl'>RS:{getIncome().toFixed(2)}</p>
+                                </div>
+                                <div className='p-4 bg-red-200 rounded-lg'>
+                                    <h3 className='text-xl font-semibold'>Total Expenses</h3>
+                                    <p className='text-2xl'>RS:{getExpenses().toFixed(2)}</p>
+                                </div>
+                                <div className='p-4 bg-blue-200 rounded-lg'>
+                                    <h3 className='text-xl font-semibold'>Net Total</h3>
+                                    <p className='text-2xl'>RS:{getTotalAmount().toFixed(2)}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div className='mt-10 ml-4'>
+                            <table className='min-w-full bg-white'>
                                 <thead>
                                     <tr>
-                                        <th className='text-xl font-thin w-1/3 px-3 py-2'>Description</th>
-                                        <th className='text-xl font-thin w-1/3 px-3 py-2'>Amount</th>
-                                        <th className='text-xl font-thin w-1/3 px-3 py-2'>Transaction</th>
-                                        <th className='text-xl font-thin w-1/3 px-3 py-2'>Action</th>
+                                        <th className='py-2 px-4'>Description</th>
+                                        <th className='py-2 px-4'>Amount</th>
+                                        <th className='py-2 px-4'>Type</th>
+                                        <th className='py- px-4'>Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {transactions.map((t) => (
-                                        <tr key={t.id}>
-                                            <td className='px-2 py-2'>{t.description}</td>
-                                            <td className='px-2 py-2'>{t.amount}</td>
-                                            <td className='px-2 py-2'>{t.amount < 0 ? "Expense" : "Income"}</td>
-                                            <td className='px-2 py-2'>
-                                                <div>
-                                                    <button className='bg-green-500 px-1 rounded-lg py-1 text-white mr-1' onClick={() => handleEdit(t)}>Edit</button>
-                                                    <button className='bg-red-500 px-1 rounded-lg py-1 text-white' onClick={() => handleDelete(t.id)}>Delete</button>
-                                                </div>
+                                    {transactions.map(transaction => (
+                                        <tr key={transaction.id}>
+                                            <td className='border px-4 py-2'>{transaction.description}</td>
+                                            <td className={`border px-4 py-2 ${transaction.amount < 0 ? 'text-red-500' : 'text-green-500'}`}>
+                                                {transaction.amount < 0 }{Math.abs(transaction.amount).toFixed(2)}
+                                            </td>
+                                            <td className='border px-4 py-2'>{transaction.amount < 0 ? 'Expense' : 'Income'}</td>
+                                            <td className='border px-4 py-2'>
+                                                <button
+                                                    className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-4 rounded mr-2'
+                                                    onClick={() => handleEdit(transaction)}
+                                                >
+                                                    Edit
+                                                </button>
+                                                <button
+                                                    className='bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-4 rounded'
+                                                    onClick={() => handleDelete(transaction.id)}
+                                                >
+                                                    Delete
+                                                </button>
                                             </td>
                                         </tr>
                                     ))}
                                 </tbody>
                             </table>
                         </div>
-                        {apiError && <div className='mt-4 text-red-500 text-center'>{apiError}</div>}
+                       
                     </div>
                 </div>
             </div>
