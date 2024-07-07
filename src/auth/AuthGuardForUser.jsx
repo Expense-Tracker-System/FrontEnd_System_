@@ -9,9 +9,9 @@ const AuthGuardForUser = () => {
 
     // Do we have access to the requeted page(the page will be rendered in <Outlet />)
     const hasAccess = isAuthenticated && user?.roles.includes("USER");
-    console.log(isAuthenticated); 
-    console.log(user.roles);
-    console.log(user?.roles.includes('USER'));
+    // console.log(isAuthenticated); 
+    // console.log(user.roles);
+    // console.log(user?.roles.includes('USER'));
 
     if(isAuthLoading){
         return <AuthSpinner/>;
