@@ -9,15 +9,17 @@ import useAuth from '../../../hooks/useAuth.hook';
 import toast from "react-hot-toast";
 import { FaCamera } from 'react-icons/fa';
 import axiosInstance from "../../../utils/axiosInstance";
-import { ADD_USER_IMAGE, UPDATE_USER_IMAGE } from '../../../utils/globalConfig';
+import { ADD_USER_IMAGE, CHECK_DIRECTION_EXIST, DELETE_USER_IMAGE, GET_USER_IMAGE, UPDATE_USER_IMAGE } from '../../../utils/globalConfig';
 
 const UserProfileSetting = () => {
     const { user, updateUserProfile } = useAuth();
     const [loadingHandleFile, setLoadingHandleFile] = useState(false);
     const [loadingUserProfile, setLoadingUserProfile] = useState(false);
     const [loadingHandleFileUpdate, setLoadingHandleFileUpdate] = useState(false);
-    const [loading, setLoading] = useState(false);
+    const [loadingHandleFileDelete, setLoadingHandleFileDelete] = useState(false);
+    const [loadingGetUserImage, setLoadingGetUserImage] = useState(false);
     const fileInputRef = useRef(null);
+    const [userImage, setUserImage] = useState('');
 
     // userFirstNameLastName form validation... 
     const updateUserProfile_ = Yup.object().shape({
@@ -95,8 +97,9 @@ const UserProfileSetting = () => {
             userLastName: user.lastName,
             userEmail: user.email,
             userPhoneNumber: user.phoneNumber,
-        })
-    }, [user, restetUserProfile]);
+        });
+        getUserImage();
+    }, [user, restetUserProfile,userImage]);
 
     // API endpoint calling...
     const onSubmitUserProfile = async (submittedData) => {
@@ -127,6 +130,7 @@ const UserProfileSetting = () => {
             setLoadingHandleFile(true);
             await axiosInstance.post(ADD_USER_IMAGE, formData);
             setLoadingHandleFile(false);
+            getUserImage();
             toast.success('user image added sucessfully');
         } catch (error) {
             setLoadingHandleFile(false);
@@ -155,26 +159,90 @@ const UserProfileSetting = () => {
             setLoadingHandleFileUpdate(true);
             await axiosInstance.put(UPDATE_USER_IMAGE, formData);
             setLoadingHandleFileUpdate(false);
+            getUserImage();
             toast.success('user image updated sucessfully');
         } catch (error) {
             setLoadingHandleFileUpdate(false);
             toast.error('An error occurred. Please contact admin', error.message);
         }
+    };
+
+    // ----
+    const handleFileDelete = async() => {
+        try{
+            setLoadingHandleFileDelete(true);
+            await axiosInstance.delete(DELETE_USER_IMAGE);
+            setLoadingHandleFileDelete(false);
+            // getUserImage();
+            setUserImage('');
+            toast.success('user image deleted sucessfully');
+        } catch(error){
+            setLoadingHandleFileDelete(false);
+            toast.error('An error occurred. Please contact admin', error.message);
+        }
+    };
+
+    // ----
+    const getUserImage = async() => {
+        try {
+            setLoadingGetUserImage(true);
+        
+            // Construct the base URL
+            const baseURL = `https://localhost:7026/Resources/${user.userName}/`;
+        
+            try {
+                // Check if the directory contains any files
+                const checkFilesResponse = await axiosInstance.get(CHECK_DIRECTION_EXIST);
+        
+                if (checkFilesResponse.data.exists) {
+                    // If the directory contains files, proceed to get the user image
+                    try {
+                        const response = await axiosInstance.get(GET_USER_IMAGE);
+                        const { userImage } = response.data;
+                        console.log(userImage);
+        
+                        // Set the user image URL
+                        setUserImage(baseURL + userImage);
+                    } catch (error) {
+                        console.error('Error fetching user image:', error.message);
+                        toast.error('An error occurred while fetching user image. Please contact admin.', error.message);
+                        // setUserImage('/path/to/default/image.png'); // Set a default image path on image fetch error
+                    }
+                } else {
+                    // Directory exists but does not contain files
+                    console.warn('User directory exists but does not contain files');
+                    toast.error('User directory exists but does not contain files. Using default image.');
+                    // setUserImage('/path/to/default/image.png'); // Set a default image path
+                }
+            } catch (error) {
+                // Handle errors in checking the directory and files
+                console.error('Error checking user directory for files:', error.message);
+                toast.error('An error occurred while checking user directory for files. Please contact admin.', error.message);
+                // setUserImage('/path/to/default/image.png'); // Set a default image path on directory check error
+            }
+        
+            setLoadingGetUserImage(false);
+        } catch (error) {
+            setLoadingGetUserImage(false);
+            toast.error('An error occurred. Please contact admin.', error.message);
+        }
+        
+        
     }
 
     // ----
-    if (loadingHandleFile) {
+    if (loadingGetUserImage) {
         return <div className="w-full">
             <Spinner />
         </div>
-    }
+    };
 
     return (
         <div className='w-full'>
             <div className="pl-24 py-2 border-2 border-[#ededed] rounded-lg">
                 <form className="flex gap-5">
                     <div className="relative flex justify-center">
-                        <img src="https://th.bing.com/th/id/R.13b51ac382a5f8d7a535631ee300e835?rik=jw%2fJuxTP2zNELQ&pid=ImgRaw&r=0"
+                        <img src={userImage}
                             className="h-[130px] w-[130px] rounded-full object-cover border-3" />
                         {/* input element id == lable element htmlFor */}
                         <input type="file" id="file" className="hidden" onChange={handleFileChange} />
@@ -184,10 +252,10 @@ const UserProfileSetting = () => {
                         <div>
                             <input type="file" id="updateFile" className="hidden" ref={fileInputRef} onChange={handleFileChangeUpdate} />
                             <label htmlFor="updateFile">
-                                <Button variant="secondary" type="button" label="Update" onClick={() => handleButtonClick()} loading={loading} />
+                                <Button variant="secondary" type="button" label="Update" onClick={() => handleButtonClick()} loading={loadingHandleFileUpdate} />
                             </label>
                         </div>
-                        <Button variant={'primary'} type={'button'} label={'Delete'} onClick={() => { }} loading={loading} />
+                        <Button variant={'primary'} type={'button'} label={'Delete'} onClick={() => handleFileDelete()} loading={loadingHandleFileDelete} />
                     </div>
                 </form>
             </div>

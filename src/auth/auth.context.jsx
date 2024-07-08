@@ -134,7 +134,6 @@ const AuthContextProvider = ({ children }) => {
             phoneNumber,
             password,
             confirmPassword,
-            pathName
         });
         console.log('Register Result:', response);
         toast.success('Register Was Successfull. Please Login.');
