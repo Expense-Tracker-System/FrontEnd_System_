@@ -16,6 +16,8 @@ const AuthGuardForUser = () => {
         return <AuthSpinner/>;
     }
 
+    // const hasAccess = true
+
     return hasAccess ? <Outlet /> : <Navigate to={PATH_PUBLIC.unauthorized} />;
 };
 
