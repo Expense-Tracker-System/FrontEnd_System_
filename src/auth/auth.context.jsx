@@ -11,7 +11,7 @@ import axiosInstance from '../utils/axiosInstance';
 
 import toast from 'react-hot-toast';
 
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 import { 
     LOGIN_URL,
@@ -25,6 +25,7 @@ import {
     UPDATE_USER_PASSWORD,
     UPDATE_USER_PROFILE,
 } from '../utils/globalConfig';
+import { PATH_PUBLIC } from '../routes/paths';
 
 // We need a reducer function for useReducer hook
 const authReducer = (state,action) => {
@@ -85,10 +86,19 @@ export const AuthContext = createContext(null);
 const AuthContextProvider = ({ children }) => {
     const [state, dispatch] = useReducer(authReducer,initialAuthState);
     const navigate = useNavigate();
+    const location = useLocation();
 
     // Initialize Method
     const initializeAuthContext = useCallback(async () => {
         try {
+            console.log(location.pathname);
+            if(location.pathname == PATH_PUBLIC.home || location.pathname == PATH_PUBLIC.login || 
+                location.pathname == PATH_PUBLIC.register || location.pathname == PATH_AFTER_LOGIN_ADMIN.home ||
+                location.pathname == PATH_AFTER_LOGIN_ADMIN.login
+            ){
+                setSession(null);
+            }
+
             const token = getSession();
             if(token) {
                 // validate accessToken by calling backend
