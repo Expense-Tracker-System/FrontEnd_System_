@@ -22,6 +22,7 @@ export const GET_OUT_MESSAGES = 'https://localhost:7026/api/OutMessages/get';
 export const UPDATE_USER_PASSWORD = 'https://localhost:7026/api/UserPassword/updateUserPassword';
 export const UPDATE_USER_USERNAME = 'https://localhost:7026/api/UserUserName/updateUserName';
 export const UPDATE_USER_PROFILE = 'https://localhost:7026/api/UserProfile/updateUserProfile';
+export const DEACTIVATE_USER_ACCOUNT = 'https://localhost:7026/api/DeactivateUserAccount/createDeactivateRequest';
 
 // Auth Routes
 export const PATH_AFTER_REGISTER = PATH_PUBLIC.login;

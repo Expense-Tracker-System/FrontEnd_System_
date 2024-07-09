@@ -1,4 +1,7 @@
 import { useState } from 'react';
+import axiosInstance from '../../../utils/axiosInstance';
+import { DEACTIVATE_USER_ACCOUNT } from '../../../utils/globalConfig';
+import toast from 'react-hot-toast';
 
 const UserSecuritySetting = () => {
     const [open, setOpen] = useState(false);
@@ -6,10 +9,18 @@ const UserSecuritySetting = () => {
     const [otherReason, setOtherReason] = useState('');
     const [reactivationDate, setReactivationDate] = useState('');
     const [twoFactor, setTwoFactor] = useState(false);
+    const [errorMessageForReason, setErrorMessageForReason] = useState('');
+    const [errorMessageForDate, setErrorMessageForDate] = useState('');
 
     const handleSubmit = (e) => {
         e.preventDefault();
         // Handle form submission
+        if(deactivationReason == ''){
+            setErrorMessageForReason('Plaese Given Reason For Deactivation');
+        }
+        if(reactivationDate == ''){
+            setErrorMessageForDate('Please Select the ')
+        }
     };
 
     const handleClickOpen = () => {
@@ -22,7 +33,18 @@ const UserSecuritySetting = () => {
 
     const handleDeactivate = () => {
         // Handle deactivation
-        setOpen(false);
+        try{
+            const deactivateUserAccount = {
+                deactivationReason: deactivationReason == 'other' ? otherReason : deactivationReason,
+                reactivationDate: reactivationDate
+            }
+            axiosInstance.post(DEACTIVATE_USER_ACCOUNT, deactivateUserAccount);
+            toast.success("Deactivation request send Successfully");
+        }catch(error){
+            toast.error("An error occured, please contact admin");
+        }finally{
+            setOpen(false);
+        }
     };
 
     return (
@@ -33,7 +55,7 @@ const UserSecuritySetting = () => {
                     <h2 className="text-2xl font-bold mb-4">Deactivate Account</h2>
                     <form onSubmit={handleSubmit}>
                         <fieldset>
-                            <legend className="mb-2">Why are you deactivating?</legend>
+                            <legend className={`${errorMessageForReason !== '' ? 'text-red-600' : ''}`}>{errorMessageForReason == '' ? 'Why are you deactivating?' : errorMessageForReason}</legend>
                             <div className="mb-4">
                                 <label className="grid grid-cols-2">
                                     Privacy Concerns
@@ -93,17 +115,18 @@ const UserSecuritySetting = () => {
                                 />
                             </div>
                         </fieldset>
-                    </form>
-                </div>
 
-                {/* Deactivate Button */}
-                <div className="mb-6">
-                    <button
-                        className="px-4 py-2 bg-red-100 text-red-600 rounded-md"
-                        onClick={handleClickOpen}
-                    >
-                        Deactivate Account
-                    </button>
+                        {/* Deactivate Button */}
+                        <div className="mb-6">
+                            <button
+                                type='submit'
+                                className="px-4 py-2 bg-red-100 text-red-600 rounded-md"
+                                onClick={handleClickOpen}
+                            >
+                                Deactivate Account
+                            </button>
+                        </div>
+                    </form>
                 </div>
 
                 {/* Deactivation Confirmation Dialog */}
@@ -141,7 +164,7 @@ const UserSecuritySetting = () => {
                                 className='toggle-switch'
                                 checked={twoFactor}
                                 onChange={(e) => setTwoFactor(e.target.checked)}
-                                />
+                            />
                         </label>
                     </div>
                     <button

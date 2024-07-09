@@ -19,7 +19,7 @@ const UserProfileSetting = () => {
     const [loadingHandleFileDelete, setLoadingHandleFileDelete] = useState(false);
     const [loadingGetUserImage, setLoadingGetUserImage] = useState(false);
     const fileInputRef = useRef(null);
-    const [userImage, setUserImage] = useState('');
+    const [userImage, setUserImage] = useState('https://m.media-amazon.com/images/M/MV5BZDA1ODgyODEtOWI3Yy00N2UzLTk5ZGMtZGI1MzU5YzFkZDQ1XkEyXkFqcGdeQXVyMTc4MzI2NQ@@._V1_FMjpg_UX1000_.jpg');
 
     // userFirstNameLastName form validation... 
     const updateUserProfile_ = Yup.object().shape({
@@ -174,7 +174,7 @@ const UserProfileSetting = () => {
             await axiosInstance.delete(DELETE_USER_IMAGE);
             setLoadingHandleFileDelete(false);
             // getUserImage();
-            setUserImage('');
+            setUserImage('https://m.media-amazon.com/images/M/MV5BZDA1ODgyODEtOWI3Yy00N2UzLTk5ZGMtZGI1MzU5YzFkZDQ1XkEyXkFqcGdeQXVyMTc4MzI2NQ@@._V1_FMjpg_UX1000_.jpg');
             toast.success('user image deleted sucessfully');
         } catch(error){
             setLoadingHandleFileDelete(false);
@@ -212,7 +212,7 @@ const UserProfileSetting = () => {
                     // Directory exists but does not contain files
                     console.warn('User directory exists but does not contain files');
                     toast.error('User directory exists but does not contain files. Using default image.');
-                    // setUserImage('/path/to/default/image.png'); // Set a default image path
+                    // setUserImage(); // Set a default image path
                 }
             } catch (error) {
                 // Handle errors in checking the directory and files

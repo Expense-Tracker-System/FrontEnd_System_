@@ -28,7 +28,7 @@ const Header = () => {
             <div className='flex items-center gap-4'>
                 <AiOutlineHome
                     className='w-8 h-8 text-green-400 hover:text-green-600 cursor-pointer'
-                    onClick={() => navigate('/')}
+                    onClick={() => logout()}
                 />
                 {
                     !location.pathname.startsWith(PATH_DASHBOARD_ADMIN.home) ? (
