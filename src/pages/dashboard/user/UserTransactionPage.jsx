@@ -141,15 +141,15 @@ console.log(error)
                     <div className='flex flex-col md:flex-row justify-between gap-4'>
             <div className='flex-1 p-6 bg-teal-900	 text-white  shadow-lg transform transition-transform hover:scale-105 '>
                 <h3 className='text-2xl font-semibold mb-2 text-center'>Total Income</h3>
-                <p className='text-3xl font-bold text-center'>RS:{getIncome().toFixed(2)}</p>
+                <p className='text-3xl font-bold text-center'>RS : {getIncome().toFixed(2)}</p>
             </div>
             <div className='flex-1 p-6 bg-teal-900 text-white  shadow-lg transform transition-transform hover:scale-105'>
                 <h3 className='text-2xl font-semibold mb-2 text-center'>Total Expenses</h3>
-                <p className='text-3xl font-bold text-center'>RS:{getExpenses().toFixed(2)}</p>
+                <p className='text-3xl font-bold text-center'>RS : {getExpenses().toFixed(2)}</p>
             </div>
             <div className='flex-1 p-6 bg-teal-900 text-white  shadow-lg transform transition-transform hover:scale-105'>
                 <h3 className='text-2xl font-semibold mb-2 text-center'>Net Total</h3>
-                <p className='text-3xl font-bold text-center'>RS:{getTotalAmount().toFixed(2)}</p>
+                <p className='text-3xl font-bold text-center'>RS : {getTotalAmount().toFixed(2)}</p>
             </div>
         </div>
                         <div className='flex flex-col md:flex-row'>

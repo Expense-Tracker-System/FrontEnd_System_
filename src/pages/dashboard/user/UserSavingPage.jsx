@@ -15,10 +15,10 @@ const UserSavingPage = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         const savingData = {
-            Amount: parseFloat(amount),
-            BankName:bank ,
-            Description:description,
-            Date :date,
+            amount: parseFloat(amount),
+            bankName:bank ,
+            description:description,
+            date :date,
             userName :"menaka"
         };
         try {
@@ -40,12 +40,13 @@ const UserSavingPage = () => {
         e.preventDefault();
 
        const  modle = {
-        BankName:filterBank,
-        StartDate: startDate,
-        EndDate:endDate,
+        bankName:filterBank,
+        startDate: startDate,
+        endDate:endDate,
     };
         try {
             const response = await axiosInstance.post('/SavingView/GetSavingDetails', modle);
+            console.log(response)
             setSavingDetails(response.data);
             setIsModalOpen(false); // Close modal after fetching data
         } catch (error) {
