@@ -3,18 +3,23 @@ import InputField from "../../general/InputField"
 import { yupResolver } from "@hookform/resolvers/yup"
 import * as Yup from 'yup';
 import Button from "../../general/Button";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Spinner from "../../general/Spinner";
 import useAuth from '../../../hooks/useAuth.hook';
 import toast from "react-hot-toast";
 import { FaCamera } from 'react-icons/fa';
 import axiosInstance from "../../../utils/axiosInstance";
-import { ADD_USER_IMAGE } from '../../../utils/globalConfig';
+import { ADD_USER_IMAGE, CHECK_DIRECTION_EXIST, DELETE_USER_IMAGE, GET_USER_IMAGE, UPDATE_USER_IMAGE } from '../../../utils/globalConfig';
 
 const UserProfileSetting = () => {
-    const { user } = useAuth();
+    const { user, updateUserProfile } = useAuth();
     const [loadingHandleFile, setLoadingHandleFile] = useState(false);
-    const [loading, setLoading] = useState(false);
+    const [loadingUserProfile, setLoadingUserProfile] = useState(false);
+    const [loadingHandleFileUpdate, setLoadingHandleFileUpdate] = useState(false);
+    const [loadingHandleFileDelete, setLoadingHandleFileDelete] = useState(false);
+    const [loadingGetUserImage, setLoadingGetUserImage] = useState(false);
+    const fileInputRef = useRef(null);
+    const [userImage, setUserImage] = useState('https://m.media-amazon.com/images/M/MV5BZDA1ODgyODEtOWI3Yy00N2UzLTk5ZGMtZGI1MzU5YzFkZDQ1XkEyXkFqcGdeQXVyMTc4MzI2NQ@@._V1_FMjpg_UX1000_.jpg');
 
     // userFirstNameLastName form validation... 
     const updateUserProfile_ = Yup.object().shape({
@@ -22,7 +27,7 @@ const UserProfileSetting = () => {
             .required('First Name is required'),
         userLastName: Yup.string()
             .required('Last Name is reqiured'),
-        userEmail : Yup.string()
+        userEmail: Yup.string()
             .required('User Email is required')
             .email('Input text must be a valid email'),
         userPhoneNumber: Yup.string()
@@ -69,7 +74,7 @@ const UserProfileSetting = () => {
     });
 
 
-    // userPassword form setup...
+    // userProfile form setup...
     const {
         control: controlUserProfile,                     // An object -> register input -> form...
         handleSubmit: handleSubmitUserProfile,           // A function -> handel the form submition...
@@ -85,25 +90,47 @@ const UserProfileSetting = () => {
         }
     });
 
+    // useEffect hook
+    useEffect(() => {
+        restetUserProfile({
+            userFirstName: user.firstName,
+            userLastName: user.lastName,
+            userEmail: user.email,
+            userPhoneNumber: user.phoneNumber,
+        });
+        getUserImage();
+    }, [user, restetUserProfile,userImage]);
+
     // API endpoint calling...
-    const onSubmitUserProfile = () => {
+    const onSubmitUserProfile = async (submittedData) => {
+        try {
+            setLoadingUserProfile(true);
+            await updateUserProfile(submittedData.userFirstName, submittedData.userLastName, submittedData.userEmail, submittedData.userPhoneNumber);
+            setLoadingUserProfile(false)
+            restetUserProfile();
+        } catch (error) {
+            setLoadingUserProfile(false);
+            resetUserPassword();
+            toast.error('Án error occured. please contact admin');
+        }
 
     };
 
     // API endpoint calling...
     const handleFileChange = async (event) => {
-        if (!event.target.files[0]) {
-            toast.error('please select an image');
-            return;
-        }
-
-        let formData = new FormData();
-        formData.append('ImageFile', event.target.files[0]); // selectedFile should be the file object
-
         try {
+            if (!event.target.files[0]) {
+                toast.error('please select an image');
+                return;
+            }
+    
+            let formData = new FormData();
+            formData.append('ImageFile', event.target.files[0]); // selectedFile should be the file object
+
             setLoadingHandleFile(true);
             await axiosInstance.post(ADD_USER_IMAGE, formData);
             setLoadingHandleFile(false);
+            getUserImage();
             toast.success('user image added sucessfully');
         } catch (error) {
             setLoadingHandleFile(false);
@@ -111,27 +138,124 @@ const UserProfileSetting = () => {
         }
     };
 
+    // Trigger the input DOM element
+    const handleButtonClick = () => {
+        if (fileInputRef.current) {
+            fileInputRef.current.click();
+        }
+    };
+
+    // -----
+    const handleFileChangeUpdate = async(event) => {
+        try{
+            if (!event.target.files[0]) {
+                toast.error('please select an image');
+                return;
+            }
+
+            let formData = new FormData();
+            formData.append('ImageFile', event.target.files[0]); // selectedFile should be the file object
+
+            setLoadingHandleFileUpdate(true);
+            await axiosInstance.put(UPDATE_USER_IMAGE, formData);
+            setLoadingHandleFileUpdate(false);
+            getUserImage();
+            toast.success('user image updated sucessfully');
+        } catch (error) {
+            setLoadingHandleFileUpdate(false);
+            toast.error('An error occurred. Please contact admin', error.message);
+        }
+    };
+
     // ----
-    if (loadingHandleFile) {
+    const handleFileDelete = async() => {
+        try{
+            setLoadingHandleFileDelete(true);
+            await axiosInstance.delete(DELETE_USER_IMAGE);
+            setLoadingHandleFileDelete(false);
+            // getUserImage();
+            setUserImage('https://m.media-amazon.com/images/M/MV5BZDA1ODgyODEtOWI3Yy00N2UzLTk5ZGMtZGI1MzU5YzFkZDQ1XkEyXkFqcGdeQXVyMTc4MzI2NQ@@._V1_FMjpg_UX1000_.jpg');
+            toast.success('user image deleted sucessfully');
+        } catch(error){
+            setLoadingHandleFileDelete(false);
+            toast.error('An error occurred. Please contact admin', error.message);
+        }
+    };
+
+    // ----
+    const getUserImage = async() => {
+        try {
+            setLoadingGetUserImage(true);
+        
+            // Construct the base URL
+            const baseURL = `https://localhost:7026/Resources/${user.userName}/`;
+        
+            try {
+                // Check if the directory contains any files
+                const checkFilesResponse = await axiosInstance.get(CHECK_DIRECTION_EXIST);
+        
+                if (checkFilesResponse.data.exists) {
+                    // If the directory contains files, proceed to get the user image
+                    try {
+                        const response = await axiosInstance.get(GET_USER_IMAGE);
+                        const { userImage } = response.data;
+                        console.log(userImage);
+        
+                        // Set the user image URL
+                        setUserImage(baseURL + userImage);
+                    } catch (error) {
+                        console.error('Error fetching user image:', error.message);
+                        toast.error('An error occurred while fetching user image. Please contact admin.', error.message);
+                        // setUserImage('/path/to/default/image.png'); // Set a default image path on image fetch error
+                    }
+                } else {
+                    // Directory exists but does not contain files
+                    console.warn('User directory exists but does not contain files');
+                    toast.error('User directory exists but does not contain files. Using default image.');
+                    // setUserImage(); // Set a default image path
+                }
+            } catch (error) {
+                // Handle errors in checking the directory and files
+                console.error('Error checking user directory for files:', error.message);
+                toast.error('An error occurred while checking user directory for files. Please contact admin.', error.message);
+                // setUserImage('/path/to/default/image.png'); // Set a default image path on directory check error
+            }
+        
+            setLoadingGetUserImage(false);
+        } catch (error) {
+            setLoadingGetUserImage(false);
+            toast.error('An error occurred. Please contact admin.', error.message);
+        }
+        
+        
+    }
+
+    // ----
+    if (loadingGetUserImage) {
         return <div className="w-full">
             <Spinner />
         </div>
-    }
+    };
 
     return (
         <div className='w-full'>
             <div className="pl-24 py-2 border-2 border-[#ededed] rounded-lg">
                 <form className="flex gap-5">
                     <div className="relative flex justify-center">
-                        <img src="https://th.bing.com/th/id/R.13b51ac382a5f8d7a535631ee300e835?rik=jw%2fJuxTP2zNELQ&pid=ImgRaw&r=0"
+                        <img src={userImage}
                             className="h-[130px] w-[130px] rounded-full object-cover border-3" />
                         {/* input element id == lable element htmlFor */}
                         <input type="file" id="file" className="hidden" onChange={handleFileChange} />
                         <label htmlFor='file' className="absolute bottom-0 text-2xl text-[#a2a8a6]"><FaCamera /></label>
                     </div>
                     <div className="flex items-center gap-3">
-                        <Button variant={'secondary'} type={'button'} label={'Update'} onClick={() => { }} loading={loading} />
-                        <Button variant={'primary'} type={'button'} label={'Delete'} onClick={() => { }} loading={loading} />
+                        <div>
+                            <input type="file" id="updateFile" className="hidden" ref={fileInputRef} onChange={handleFileChangeUpdate} />
+                            <label htmlFor="updateFile">
+                                <Button variant="secondary" type="button" label="Update" onClick={() => handleButtonClick()} loading={loadingHandleFileUpdate} />
+                            </label>
+                        </div>
+                        <Button variant={'primary'} type={'button'} label={'Delete'} onClick={() => handleFileDelete()} loading={loadingHandleFileDelete} />
                     </div>
                 </form>
             </div>
@@ -152,8 +276,8 @@ const UserProfileSetting = () => {
                         <InputField control={controlUserProfile} label={'Phone Number'} inputName={'userPhoneNumber'} error={errorsUserProfile.userPhoneNumber?.message} />
                     </div>
                     <div className="flex justify-end items-center gap-3 pr-12 py-4">
-                        <Button variant={'secondary'} type={'button'} label={'Discard'} onClick={() => restetUserProfile()} loading={loading} />
-                        <Button variant={'primary'} type={'submit'} label={'Update'} onClick={() => {}} loading={loading} />
+                        <Button variant={'secondary'} type={'button'} label={'Discard'} onClick={() => restetUserProfile()} />
+                        <Button variant={'primary'} type={'submit'} label={'Update'} onClick={() => { }} loading={loadingUserProfile} />
                     </div>
                 </form>
             </div>

@@ -4,13 +4,13 @@ import * as Yup from 'yup';
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useState } from "react";
 import Button from '../../general/Button';
-import axiosInstance from "../../../utils/axiosInstance";
-import { UPDATE_USER_PASSWORD } from '../../../utils/globalConfig';
 import toast from "react-hot-toast";
+import useAuth from "../../../hooks/useAuth.hook";
 
 const UserAccountSetting = () => {
+    const { updateUserName, updateUserPassword } = useAuth();
     const [loadingUserPassword, setLoadingUserPassword] = useState(false);
-    const [loading, setLoading] = useState(false);
+    const [loadingUserUserName, setLoadingUserUserName] = useState(false);
 
     // validate the user password form
     const updateUserPassword_ =  Yup.object().shape({
@@ -66,27 +66,32 @@ const UserAccountSetting = () => {
     const onSubmitUserPassword = async(submitedData) => {
         try{
             setLoadingUserPassword(true);
-            const updateUserPassword = {
-                userPasswordOld: submitedData.userPasswordOld,
-                userPasswordNew: submitedData.userPasswordNew,
-                confirmUserPasswordNew: submitedData.userPasswordNewConfirm
-            }
-            const response = await axiosInstance.put(UPDATE_USER_PASSWORD, updateUserPassword);
+            await updateUserPassword(submitedData.userPasswordOld,submitedData.userPasswordNew,submitedData.userPasswordNewConfirm);
             setLoadingUserPassword(false);
-            toast.success(response.data.message);
             resetUserPassword();
-
         }catch(error){
             setLoadingUserPassword(false);
-            resetUserPassword();
+            // resetUserPassword();
             toast.error('Án error occured. please contact admin');
 
         }
     };
 
     // calling the backend API...
-    const onSubmitUserName = () => {
+    const onSubmitUserName = async(submittedData) => {
+        try{
+            setLoadingUserUserName(true);
+            await updateUserName(submittedData.userNameOld,submittedData.userNameNew);
+            setLoadingUserUserName(false);
+            resetUserName();
+        }catch(error){
+            setLoadingUserUserName(false);
+            // resetUserName();
+            const err = error;
+            const { status } = err;
 
+            toast.error('An Error occurred, Please contact admin');
+        }
     };
 
     return (
@@ -96,8 +101,8 @@ const UserAccountSetting = () => {
                     <InputField control={controlUserName} label={'User Name(Current)'} inputName={'userNameOld'} error={errorsUserName.userNameOld?.message} />
                     <InputField control={controlUserName} label={'User Name(New)'} inputName={'userNameNew'} error={errorsUserName.userNameNew?.message} />
                     <div className="flex justify-end items-center gap-3 pr-12 py-4">
-                        <Button variant={'secondary'} type={'button'} label={'Discard'} onClick={() => resetUserName()} loading={loading} />
-                        <Button variant={'primary'} type={'submit'} label={'Update'} onClick={() => {}} loading={loading} />
+                        <Button variant={'secondary'} type={'button'} label={'Discard'} onClick={() => resetUserName()} />
+                        <Button variant={'primary'} type={'submit'} label={'Update'} onClick={() => {}} loading={loadingUserUserName} />
                     </div>
                 </form>
             </div>
@@ -107,7 +112,7 @@ const UserAccountSetting = () => {
                     <InputField control={controlUserPassword} label={'User New Password'} inputName={'userPasswordNew'} inputType={"password"} error={errorsUserPassword.userPasswordNew?.message} />
                     <InputField control={controlUserPassword} label={'User New Password(Confirm)'} inputName={'userPasswordNewConfirm'} inputType={"password"} error={errorsUserPassword.userPasswordNewConfirm?.message} />
                     <div className="flex justify-end items-center gap-3 pr-12 py-4">
-                        <Button variant={'secondary'} type={'button'} label={'Discard'} onClick={() => resetUserPassword()} loading={loadingUserPassword} />
+                        <Button variant={'secondary'} type={'button'} label={'Discard'} onClick={() => resetUserPassword()} />
                         <Button variant={'primary'} type={'submit'} label={'Update'} onClick={() => {}} loading={loadingUserPassword} />
                     </div>
                 </form>

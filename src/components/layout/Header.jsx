@@ -28,7 +28,7 @@ const Header = () => {
             <div className='flex items-center gap-4'>
                 <AiOutlineHome
                     className='w-8 h-8 text-green-400 hover:text-green-600 cursor-pointer'
-                    onClick={() => navigate('/')}
+                    onClick={() => logout()}
                 />
                 {
                     !location.pathname.startsWith(PATH_DASHBOARD_ADMIN.home) ? (
@@ -69,7 +69,7 @@ const Header = () => {
                         <div className='flex items-center gap-2'>
                             <Button
                                 label='Dashboard'
-                                onClick={() => user.roles == "Admin" ? navigate(PATH_DASHBOARD_ADMIN.dashboard) : navigate(PATH_DASHBOARD_USER.dashboard)}
+                                onClick={() => user.roles.includes("ADMIN") ? navigate(PATH_DASHBOARD_ADMIN.dashboard) : navigate(PATH_DASHBOARD_USER.dashboard)}
                                 type='button'
                                 variant='light'
                             />
@@ -82,15 +82,21 @@ const Header = () => {
                         </div>
                     ) : (
                         <div className='flex items-center gap-2 px-5'>
-                            <Button
-                                label='Register'
-                                onClick={() => navigate(PATH_PUBLIC.register)}
-                                type='button'
-                                variant='light'
-                            />
+                            {
+                                location.pathname.startsWith(PATH_DASHBOARD_ADMIN.home) ? (
+                                    <div></div>
+                                ) : (
+                                    <Button
+                                    label='Register'
+                                    onClick={() => navigate(PATH_PUBLIC.register)}
+                                    type='button'
+                                    variant='light'
+                                />
+                                )
+                            }
                             <Button
                                 label='Login'
-                                onClick={() => navigate(PATH_PUBLIC.login)}
+                                onClick={() => location.pathname.startsWith(PATH_DASHBOARD_ADMIN.home) ? navigate(PATH_DASHBOARD_ADMIN.login) : navigate(PATH_PUBLIC.login)}
                                 type='button'
                                 variant='light'
                             />
