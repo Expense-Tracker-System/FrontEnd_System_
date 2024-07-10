@@ -10,7 +10,7 @@ import MulChartLine from "../../../components/AnalysisComponents/MulChartLine";
 import ButtonsSet from "../../../components/AnalysisComponents/ButtonsSet";
 import AnalysisButtonSet from "../../../components/AnalysisComponents/AnalysisButtonSet";
 
-function Analysis() {
+function UserAnalysisPage() {
   return (
     <div className="pageTemplate2">
       <div className="container-fluid">
@@ -49,4 +49,4 @@ function Analysis() {
   );
 }
 
-export default Analysis;
+export default UserAnalysisPage

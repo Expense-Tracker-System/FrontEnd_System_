@@ -8,13 +8,15 @@ const AuthGuardForUser = () => {
     const { isAuthenticated, user, isAuthLoading } = useAuth();
 
     // Do we have access to the requeted page(the page will be rendered in <Outlet />)
-    const hasAccess = isAuthenticated && user.roles == "User" && localStorage.getItem('mode') == 'user';
+    const hasAccess = isAuthenticated && user.roles == "User";
     console.log(isAuthenticated); 
     // console.log(user.roles);
 
     if(isAuthLoading){
         return <AuthSpinner/>;
     }
+
+    // const hasAccess = true
 
     return hasAccess ? <Outlet /> : <Navigate to={PATH_PUBLIC.unauthorized} />;
 };

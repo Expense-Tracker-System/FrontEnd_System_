@@ -25,7 +25,7 @@ const ScrollToTop = () => {
 
     return (
         <div>
-            {showScrollTopButton && <FaAngleDoubleUp className='fixed bottom-5 right-10 h-12 w-12 rounded-full border-2 border-black bg-white text-black flex items-center justify-center cursor-pointer' onClick={scrollTop} />}
+            {showScrollTopButton && <FaAngleDoubleUp className='fixed bottom-5 right-10 h-12 w-12 rounded-full border-2 border-black bg-white text-black flex items-center justify-center cursor-pointer z-10' onClick={scrollTop} />}
         </div>
     );
 };

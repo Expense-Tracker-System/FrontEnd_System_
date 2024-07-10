@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
-import axiosInstance from '../../utils/axiosInstance';
-import { MY_LOGS_URL } from '../../utils/globalConfig';
+import axiosInstance from '../../../utils/axiosInstance';
+import { MY_LOGS_URL } from '../../../utils/globalConfig';
 import { toast } from 'react-hot-toast';
-import Spinner from '../../components/general/Spinner';
+import Spinner from '../../../components/general/Spinner';
 import moment from 'moment';
 
 const MyLogsPage = () => {
@@ -50,9 +50,9 @@ const MyLogsPage = () => {
 
     return (
         <div className='pageTemplate2'>
-            <h1 className='text-2xl font-bold'>My Logs</h1>
+            <h1 className='text-3xl font-bold'>My Logs</h1>
             <div className='pageTemplate3 items-stretch'>
-                <div className='grid grid-cols-6 p-2 border-2 border-gray-200 rounded-lg'>
+                <div className='grid grid-cols-6 p-2 border-2 border-gray-200 rounded-lg font-semibold'>
                     <span>No</span>
                     <span>Date</span>
                     <span>Username</span>

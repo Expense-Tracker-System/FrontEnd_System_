@@ -12,7 +12,7 @@ export const setSession = (accessToken) => {
 };
 
 export const getSession = () => {
-    return localStorage.getSession('accessToken');
+    return localStorage.getItem('accessToken');
 };
 
 export const allAccessRoles = ['ADMIN','USER'];

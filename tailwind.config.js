@@ -7,6 +7,11 @@ export default {
   theme: {
     extend: {},
   },
+  variants: {
+    extend: {
+      scrollbar: ['rounded'], // Enable rounded scrollbars
+    },
+  },
   plugins: [],
 }
 
