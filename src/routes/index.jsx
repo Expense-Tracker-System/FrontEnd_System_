@@ -72,14 +72,13 @@ const GlobalRouter = () => {
                     <Route path={PATH_DASHBOARD_ADMIN.remender} element={<AdminRemenderPage />} />
                     <Route path={PATH_DASHBOARD_ADMIN.setting} element={<AdminSettingPage />} />
                 </Route>
-
-            </Route>
+             </Route>
 
             {/* Catch all 404 */}
             <Route path={PATH_PUBLIC.notFound} element={<NotFoundPage />} />
             <Route path='*' element={<Navigate to={PATH_PUBLIC.notFound} replace />} />
-        </Routes>
-    )
-}
+    </Routes>
+  );
+};
 
 export default GlobalRouter;
