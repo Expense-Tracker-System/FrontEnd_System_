@@ -9,6 +9,7 @@ import CheckIcon from '@mui/icons-material/Check';
 import axiosInstance from '../../utils/axiosInstance';
 import { USERS_LIST_URL, CREATE_ORGANIZATION } from '../../utils/globalConfig';
 import { toast } from 'react-hot-toast'; // Assuming you use react-hot-toast for toasts
+import useAuth from '../../hooks/useAuth.hook';
 
 const CreateOrganizationPage = () => {
   const [title, setTitle] = useState('');
@@ -21,6 +22,7 @@ const CreateOrganizationPage = () => {
   const navigate = useNavigate();
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
+  const { user } = useAuth();
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -51,6 +53,7 @@ const CreateOrganizationPage = () => {
     const organizationData = { title, users: selectedUsers };
     try {
       setLoading(true);
+      console.log(selectedUsers);
       const response = await axiosInstance.post(CREATE_ORGANIZATION, organizationData);
       setLoading(false);
       setSelectedUsers([]);
@@ -58,7 +61,7 @@ const CreateOrganizationPage = () => {
       setShowUserList(false);
       setSubmitAttempted(false);
       toast.success('Organization created successfully');
-      navigate('/view-organization');
+      // navigate('/view-organization');
     } catch (error) {
       setLoading(false);
       toast.error('An Error occurred. Please contact admin.');
@@ -99,11 +102,11 @@ const CreateOrganizationPage = () => {
         <>
           {loading ? <CircularProgress /> : (
             <List>
-              {users.map((user) => (
-                <ListItem key={user.id}>
-                  <ListItemText primary={user.userName} />
+              {users.filter(user_ => user_.userName != user.userName).map((user_) => (
+                <ListItem key={user_.id}>
+                  <ListItemText primary={user_.userName} />
                   <ListItemSecondaryAction>
-                    <IconButton edge="end" onClick={() => handleSelectUser(user)}>
+                    <IconButton edge="end" onClick={() => handleSelectUser(user_)}>
                       <CheckIcon />
                     </IconButton>
                   </ListItemSecondaryAction>

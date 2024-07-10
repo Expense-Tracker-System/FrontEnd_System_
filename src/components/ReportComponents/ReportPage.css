@@ -28,7 +28,7 @@
 hr {
     width: 90%;
     border-top: 1px solid #ccc;
-    margin-bottom: 20px;
+    margin-bottom: 200px;
 }
 
 .error {
@@ -45,4 +45,142 @@ hr {
     margin-top: 20px; 
     text-align: center; 
 }
+.report-container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 20px 0;
+}
 
+.full-screen-table {
+    width: 100%;
+    max-width: 1200px;
+    border-collapse: collapse;
+    margin: 0 auto;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.full-screen-table th, .full-screen-table td {
+    border: 1px solid #ddd;
+    padding: 12px;
+    text-align: left;
+}
+
+.full-screen-table th {
+    background-color: #f2f2f2;
+    font-weight: bold;
+}
+
+.full-screen-table tbody tr {
+    background-color: #fff;
+}
+
+.full-screen-table tbody tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.full-screen-table tbody tr:hover {
+    background-color: #f1f1f1;
+}
+
+.full-screen-table tbody tr td {
+    padding: 15px;
+}
+.report-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    font-family: Arial, sans-serif;
+}
+
+.inputs {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.inputs .report-button {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.inputs .report-button:hover {
+    background-color: #45a049;
+}
+
+.table-container {
+    overflow-x: auto;
+    margin-bottom: 20px;
+    height: calc(100vh - 150px);
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+table th, table td {
+    border: 1px solid #ddd;
+    padding : 9px;
+    text-align: left;
+}
+
+table th {
+    background-color: #f2f2f2;
+    font-weight: bold;
+}
+
+table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+table tr:hover {
+    background-color: #ddd;
+}
+
+h2 {
+    margin-top: 20px;
+}
+
+h3 {
+    margin-top: 10px;
+    color: #4CAF50;
+}
+
+.report-button.download {
+    background-color: #2196F3;
+}
+
+.report-button.download:hover {
+    background-color: #0b7dda;
+}
+
+.placeholder-text {
+    text-align: center;
+    color: #888;
+    font-style: italic;
+}
+
+.error {
+    color: red;
+    font-size: 0.9em;
+    margin-top: 10px;
+}
+.All-Table {
+    width: 100%;
+}
+
+.incomehedder{
+     text-align: center;
+     ;
+}
+.expencehedder{
+     text-align: center;
+}

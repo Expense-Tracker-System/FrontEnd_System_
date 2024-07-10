@@ -3,6 +3,7 @@ import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
 import axios from 'axios';
 import jsPDF from 'jspdf';
+import 'jspdf-autotable';
 import '../ReportComponents/ReportPage.css';
 
 function ReportPage() {
@@ -46,112 +47,125 @@ function ReportPage() {
     };
 
     const downloadPdfReport = () => {
-      if (!reportData) {
-          alert("No report data available to download.");
-          return;
-      }
-      const doc = new jsPDF({
-          orientation: "portrait", // Changed back to portrait for better document control
-          unit: 'pt', // Using points for precision
-          format: 'a4' // Standard document size
-      });
-      let position = 30; // Start a bit lower for aesthetics
-      const lineHeight = 15; // Increased line height for readability
-      const pageHeight = doc.internal.pageSize.height;
-      const margin = 20; // Margin for the page
-  
-      // Function to add new page if needed
-      const addNewPageIfNeeded = () => {
-          if (position >= pageHeight - margin) {
-              doc.addPage();
-              position = 30; // Reset position for the new page
-          }
-      };
-  
-      doc.setFontSize(12); // Set the font size for the document
-      doc.setFont("helvetica", "bold"); // Bold font for section titles
-  
-      // Heading for the report
-      doc.text("Financial Report", margin, position);
-      position += 20; // Space after the title
-  
-      // Function to add text to the document with automatic new page addition
-      const addText = (text) => {
-          if (position >= pageHeight - margin) {
-              doc.addPage();
-              position = 30; // Top margin of new page
-          }
-          doc.text(text, margin, position);
-          position += lineHeight;
-      };
-  
-      // Rendering Incomes
-      if (reportData.incomes && reportData.incomes.length > 0) {
-          doc.setFont("helvetica", "bold"); // Bold font for titles
-          addText("Incomes:");
-          doc.setFont("helvetica", "normal"); // Normal font for items
-          reportData.incomes.forEach((income, index) => {
-              addText(`${index + 1}. ${income.category}: $${income.amount} - Date: ${new Date(income.createdAt).toLocaleDateString()}`);
-          });
-          addText(`Total Income: $${reportData.totalIncomes}`);
-      }
-  
-      // Space before next section
-      position += 10;
-  
-      // Rendering Expenses
-      if (reportData.expenses && reportData.expenses.length > 0) {
-          doc.setFont("helvetica", "bold"); // Bold font for titles
-          addText("Expenses:");
-          doc.setFont("helvetica", "normal"); // Normal font for items
-          reportData.expenses.forEach((expense, index) => {
-              addText(`${index + 1}. ${expense.category}: $${expense.amount} - Date: ${new Date(expense.createdAt).toLocaleDateString()}`);
-          });
-          addText(`Total Expenses: $${reportData.totalExpenses}`);
-      }
-  
-      // Adding total balance at the end
-      doc.setFont("helvetica", "bold"); // Bold font for total balance
-      addText(`Total Balance: $${reportData.totalBalance}`);
-  
-      // Save the PDF with a dynamic filename including the date
-      const reportName = `Financial_Report_${new Date().toISOString().split('T')[0]}.pdf`;
-      doc.save(reportName);
-  };
-  
-  
-  return (
-    <div className="report-container">
-        <div className="inputs">
-            <DatePicker selected={startDate} onChange={date => setStartDate(date)} placeholderText="Enter Start Date" dateFormat="MMMM d, yyyy"/>
-            <DatePicker selected={endDate} onChange={date => setEndDate(date)} placeholderText="Enter End Date" dateFormat="MMMM d, yyyy"/>
-            <button className="report-button" onClick={fetchReportData}>Create Report</button>
-        </div>
-        <hr />
-        {reportData ? (
-            <div>
-                <h2>Income</h2>
-                {reportData.incomes.map((income, index) => (
-                    <p key={index}>{income.category} - ${income.amount} - Date: {new Date(income.createdAt).toLocaleDateString()}</p>
-                ))}
-                <h3>Total Income: ${reportData.totalIncomes}</h3>
+        if (!reportData) {
+            alert("No report data available to download.");
+            return;
+        }
 
-                <h2>Expenses</h2>
-                {reportData.expenses.map((expense, index) => (
-                    <p key={index}>{expense.category} - ${expense.amount} - Date: {new Date(expense.createdAt).toLocaleDateString()}</p>
-                ))}
-                <h3>Total Expenses: ${reportData.totalExpenses}</h3>
+        const doc = new jsPDF();
+        doc.setFontSize(12);
+        doc.text("Financial Report", 14, 16);
+        doc.text(`Date: ${new Date().toLocaleDateString()}`, 14, 22);
 
-                <h3>Total Balance: ${reportData.totalBalance}</h3>
-                <button className="report-button download" onClick={downloadPdfReport}>Download Report</button>
+        if (reportData.incomes && reportData.incomes.length > 0) {
+            doc.text("Incomes:", 14, 30);
+            const incomeData = reportData.incomes.map((income, index) => [
+                index + 1, 
+                income.category, 
+                `$${income.amount}`, 
+                new Date(income.createdAt).toLocaleDateString()
+            ]);
+            doc.autoTable({
+                head: [['#', 'Category', 'Amount', 'Date']],
+                body: incomeData,
+                startY: 36,
+            });
+        }
+
+        if (reportData.expenses && reportData.expenses.length > 0) {
+            const startY = doc.previousAutoTable.finalY + 10;
+            doc.text("Expenses:", 14, startY);
+            const expenseData = reportData.expenses.map((expense, index) => [
+                index + 1, 
+                expense.category, 
+                `$${expense.amount}`, 
+                new Date(expense.createdAt).toLocaleDateString()
+            ]);
+            doc.autoTable({
+                head: [['#', 'Category', 'Amount', 'Date']],
+                body: expenseData,
+                startY: startY + 6,
+            });
+        }
+
+        const finalY = doc.previousAutoTable.finalY + 10;
+        doc.text(`Total Income: $${reportData.totalIncomes}`, 14, finalY);
+        doc.text(`Total Expenses: $${reportData.totalExpenses}`, 14, finalY + 10);
+        doc.text(`Total Balance: $${reportData.totalBalance}`, 14, finalY + 20);
+
+        const reportName = `Financial_Report_${new Date().toISOString().split('T')[0]}.pdf`;
+        doc.save(reportName);
+    };
+
+    return (
+        <div className="report-container">
+            <div className="inputs">
+                <DatePicker selected={startDate} onChange={date => setStartDate(date)} placeholderText="Enter Start Date" dateFormat="MMMM d, yyyy" />
+                <DatePicker selected={endDate} onChange={date => setEndDate(date)} placeholderText="Enter End Date" dateFormat="MMMM d, yyyy" />
+                <button className="report-button" onClick={fetchReportData}>Create Report</button>
             </div>
-        ) : (
-            <div className="placeholder-text">Please generate a report to see data here.</div>
-        )}
-        {errors.date && <p className="error">{errors.date}</p>}
-    </div>
-);
+            
+            {reportData ? (
+                <div className='All-Table'>
+                    <h2 className="incomehedder">Income</h2>
+                    <div className="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>No</th>
+                                    <th>Category</th>
+                                    <th>Amount</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {reportData.incomes.map((income, index) => (
+                                    <tr key={index}>
+                                        <td>{index + 1}</td>
+                                        <td>{income.category}</td>
+                                        <td>${income.amount}</td>
+                                        <td>{new Date(income.createdAt).toLocaleDateString()}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                    <h3>Total Income: ${reportData.totalIncomes}</h3>
 
+                    <h2 className="expencehedder">Expenses</h2>
+                    <div className="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>No</th>
+                                    <th>Category</th>
+                                    <th>Amount</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {reportData.expenses.map((expense, index) => (
+                                    <tr key={index}>
+                                        <td>{index + 1}</td>
+                                        <td>{expense.category}</td>
+                                        <td>${expense.amount}</td>
+                                        <td>{new Date(expense.createdAt).toLocaleDateString()}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                    <h3>Total Expenses: ${reportData.totalExpenses}</h3>
+
+                    <h3>Total Balance: ${reportData.totalBalance}</h3>
+                    <button className="report-button download" onClick={downloadPdfReport}>Download Report</button>
+                </div>
+            ) : (
+                <div className="placeholder-text">Please generate a report to see data here.</div>
+            )}
+            {errors.date && <p className="error">{errors.date}</p>}
+        </div>
+    );
 }
 
 export default ReportPage;

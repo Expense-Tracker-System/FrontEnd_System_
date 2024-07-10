@@ -18,6 +18,7 @@ export const PATH_DASHBOARD_USER = {
     setting: '/user/dashboard/setting',
     sendMessage: '/user/dashboard/send-message',
     inbox: '/user/dashboard/inbox',
+    organizationProfile: '/user/dashboard/organization/organization-profile'
 }
 
 export const PATH_DASHBOARD_ADMIN = {

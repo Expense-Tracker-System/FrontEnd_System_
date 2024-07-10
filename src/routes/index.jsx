@@ -30,7 +30,7 @@ import RegisterPage from '../pages/public/RegisterPage';
 import UnauthorizedPage from '../pages/public/UnauthorizedPage';
 import UserBudgetPage from '../pages/dashboard/user/UserBudgetPage';
 import OutMessagesPage from '../pages/dashboard/admin/OutMessagesPage';
-
+import OrganizationProfile from '../pages/dashboard/user/UserOrganizationProfile';
 
 const GlobalRouter = () => {
     return (
@@ -58,6 +58,7 @@ const GlobalRouter = () => {
                     <Route path={PATH_DASHBOARD_USER.setting} element={<UserSettingPage />} />
                     <Route path={PATH_DASHBOARD_USER.sendMessage} element={<UserSendMessagePage />} />
                     <Route path={PATH_DASHBOARD_USER.inbox} element={<UserInboxPage />} />
+                    <Route path={PATH_DASHBOARD_USER.organizationProfile} element={<OrganizationProfile />} />
                 </Route>
 
                 <Route element={<AuthGuardForAdmin />}>
