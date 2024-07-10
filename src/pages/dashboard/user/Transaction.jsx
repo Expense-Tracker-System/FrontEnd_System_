@@ -1,18 +1,31 @@
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
+import axiosInstance from '../../../utils/axiosInstance';
 
 const Transaction = () => {
     const [description, setDescription] = useState('');
     const [amount, setAmount] = useState('');
-    const [date, setDate] = useState('');
-    const [transactions, setTransactions] = useState([]);
+    const [Idescription, setIDescription] = useState('');
+    const [Iamount, setIAmount] = useState('');
+
     const [editId, setEditId] = useState(null);
     const [errors, setErrors] = useState({});
+    const [apiError, setApiError] = useState('');
+    const [transactions, setTransactions] = useState([]);
 
-    const addTransaction = async (e) => {
-        e.preventDefault();
+    const validateIncomeForm = () => {
+        const validationErrors = {};
+        if (!Idescription.trim()) {
+            validationErrors.Idescription = 'Description is required';
+        }
+        if (!Iamount || isNaN(Iamount) || parseFloat(Iamount) === 0) {
+            validationErrors.Iamount = 'Amount must be a number and not zero';
+        }
+        setErrors(validationErrors);
+        return Object.keys(validationErrors).length === 0;
+    };
 
-        // Validation
+    const validateExpenseForm = () => {
         const validationErrors = {};
         if (!description.trim()) {
             validationErrors.description = 'Description is required';
@@ -20,79 +33,99 @@ const Transaction = () => {
         if (!amount || isNaN(amount) || parseFloat(amount) === 0) {
             validationErrors.amount = 'Amount must be a number and not zero';
         }
-        if (!date) {
-            validationErrors.date = 'Date is required';
-        } else if (new Date(date) > new Date()) {
-            validationErrors.date = 'Date cannot be in the future';
-        }
-
-        if (Object.keys(validationErrors).length > 0) {
-            setErrors(validationErrors);
-            return;
-        }
-
-        if (editId) {
-            const updatedTransactions = transactions.map((t) =>
-                t.id === editId ? { id: editId, description, amount: parseFloat(amount), date } : t
-            );
-            setTransactions(updatedTransactions);
-            setEditId(null);
-        } else {
-            const newTransaction = { id: Date.now(), description, amount: parseFloat(amount), date };
-            setTransactions([...transactions, newTransaction]);
-            await addTransactionToAPI(newTransaction);
-        }
-
-        setDescription('');
-        setAmount('');
-        setDate('');
-        setErrors({});
+        setErrors(validationErrors);
+        return Object.keys(validationErrors).length === 0;
     };
 
-    const addTransactionToAPI = async (transaction) => {
+    const addIncomeToAPI = async () => {
+        if (!validateIncomeForm()) return;
         try {
-            await axios.post("https://localhost:7026/api/Transaction", {
-                amount: transaction.amount,
-                description: transaction.description,
-                date: transaction.date
-            });
+            const model = {
+                amount: parseFloat(Iamount),
+                description: Idescription
+            };
+            const result = await axiosInstance.post("/Transaction/AddTransaction", model);
+            setTransactions([...transactions, result.data]);
+            setIDescription('');
+            setIAmount('');
         } catch (error) {
             console.error("There was an error adding the transaction!", error);
+            setApiError('There was an error adding the transaction. Please try again.');
+        }
+    };
+
+    const addExpenseToAPI = async () => {
+        if (!validateExpenseForm()) return;
+        try {
+            const model = {
+                amount: -parseFloat(amount),
+                description: description
+            };
+            const result = await axiosInstance.post("/Transaction/AddTransaction", model);
+            setTransactions([...transactions, result.data]);
+            setDescription('');
+            setAmount('');
+        } catch (error) {
+            console.error("There was an error adding the transaction!", error);
+            setApiError('There was an error adding the transaction. Please try again.');
+        }
+    };
+
+    const updateTransactionInAPI = async (id, transaction) => {
+        try {
+            await axiosInstance.put(`/Transaction/UpdateTransaction`, transaction);
+            getList(); // Refresh the list after update
+        } catch (error) {
+            console.error("There was an error updating the transaction!", error);
+            throw error;
         }
     };
 
     const getList = async () => {
         try {
-            const response = await axios.get("https://localhost:7026/api/Transaction");
+            const response = await axiosInstance.get("/Transaction/GetTransactions");
             setTransactions(response.data);
         } catch (error) {
             console.error("There was an error fetching the transactions!", error);
+            setApiError('There was an error fetching transactions. Please try again later.');
         }
     };
 
     const handleEdit = (transaction) => {
+        if (transaction.amount < 0) {
+            setDescription(transaction.description);
+            setAmount(-transaction.amount); // negate to get positive value
+            setIDescription("");
+            setIAmount("");
+        } else {
+            setIDescription(transaction.description);
+            setIAmount(transaction.amount);
+            setDescription("");
+            setAmount("");
+        }
         setEditId(transaction.id);
-        setDescription(transaction.description);
-        setAmount(transaction.amount);
-        setDate(transaction.date);
     };
 
     const handleDelete = async (id) => {
         try {
-            await axios.delete(`https://localhost:7026/api/Transaction/${id}`);
+            await axiosInstance.delete(`/Transaction/DeleteTransaction/${id}`);
             setTransactions(transactions.filter((t) => t.id !== id));
         } catch (error) {
-            console.error("There was an error deleting the transaction!", error);
+console.log(error)         
+   setApiError('There was an error deleting the transaction. Please try again.');
         }
     };
 
     const getIncome = () => {
+        return transactions.filter(t => t.amount > 0).reduce((acc, t) => acc + t.amount, 0);
     };
 
     const getExpenses = () => {
+        return transactions.filter(t => t.amount < 0).reduce((acc, t) => acc + (-t.amount), 0);
     };
 
     const getTotalAmount = () => {
+        return transactions.reduce((acc, t) => acc + t.amount, 0);
     };
 
     useEffect(() => {
@@ -100,76 +133,114 @@ const Transaction = () => {
     }, []);
 
     return (
-        <div className=''>
-            <div className='bg-white-200 '>
-                <h1 className='text-6xl font-bold text-center pt-6 text-green-500'>Transaction</h1>
-                <div className='container mt-10 mt-auto px-5'>
+        <div className='pageTemplate2'>
+            <div className='bg-white-200'>
+                <h1 className='text-4xl md:text-6xl font-bold text-center pt-6 text-black'>Transaction</h1>
+                <div className='container mt-10 mx-auto px-5'>
                     <div className='p-2 bg-white rounded-lg shadow-lg'>
-                        <div className='flex columns-2'>
-                            <table className='w-full table-fixed flex flex-col items-between text-left'>
+                        <div className='flex flex-col md:flex-row'>
+                            <div className='flex flex-row w-full p-5 justify-between'>
+                                <div className='rounded shadow-lg border p-5'>
+                                    <h1 className='text-xl font-sans text-center mb-5'>Add Your Income</h1>
+                                    <form onSubmit={(e) => { e.preventDefault(); addIncomeToAPI(); }} className='flex text-center flex-col mx-auto border-double border-indigo-50'>
+                                        <input
+                                            type='text'
+                                            className='border border-slate-300 rounded-md w-full px-2 py-2 mb-2'
+                                            placeholder='Description'
+                                            value={Idescription}
+                                            onChange={(e) => setIDescription(e.target.value)}
+                                        />
+                                        {errors.Idescription && <span className='text-red-500'>{errors.Idescription}</span>}
+                                        <input
+                                            type='number'
+                                            className='border border-slate-300 rounded-md w-full px-2 py-2 mb-2'
+                                            placeholder='Amount'
+                                            value={Iamount}
+                                            onChange={(e) => setIAmount(e.target.value)}
+                                        />
+                                        {errors.Iamount && <span className='text-red-500'>{errors.Iamount}</span>}
+                                        <button className='bg-black hover:bg-violet-600 active:bg-violet-700 focus:outline-none text-white px-4 py-2 rounded-md'>{editId ? 'Update Income' : 'Add Income'}</button>
+                                    </form>
+                                </div>
+                                <div className='rounded shadow-lg border p-5'>
+                                    <h1 className='text-xl font-sans text-center mb-5'>Add Your Expense</h1>
+                                    <form onSubmit={(e) => { e.preventDefault(); addExpenseToAPI(); }} className='flex text-center flex-col mx-auto border-double border-indigo-50'>
+                                        <input
+                                            type='text'
+                                            className='border border-slate-300 rounded-md w-full px-2 py-2 mb-2'
+                                            placeholder='Description'
+                                            value={description}
+                                            onChange={(e) => setDescription(e.target.value)}
+                                        />
+                                        {errors.description && <span className='text-red-500'>{errors.description}</span>}
+                                        <input
+                                            type='number'
+                                            className='border border-slate-300 rounded-md w-full px-2 py-2 mb-2'
+                                            placeholder='Amount'
+                                            value={amount}
+                                            onChange={(e) => setAmount(e.target.value)}
+                                        />
+                                        {errors.amount && <span className='text-red-500'>{errors.amount}</span>}
+                                        <button className='bg-black hover:bg-violet-600 active:bg-violet-700 focus:outline-none text-white px-4 py-2 rounded-md'>{editId ? 'Update Expense' : 'Add Expense'}</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        {apiError && <div className='text-red-500 text-center'>{apiError}</div>}
+                        <div className='mt-5'>
+                            <div className='flex justify-between'>
+                                <div className='p-4 bg-green-200 rounded-lg'>
+                                    <h3 className='text-xl font-semibold'>Total Income</h3>
+                                    <p className='text-2xl'>RS:{getIncome().toFixed(2)}</p>
+                                </div>
+                                <div className='p-4 bg-red-200 rounded-lg'>
+                                    <h3 className='text-xl font-semibold'>Total Expenses</h3>
+                                    <p className='text-2xl'>RS:{getExpenses().toFixed(2)}</p>
+                                </div>
+                                <div className='p-4 bg-blue-200 rounded-lg'>
+                                    <h3 className='text-xl font-semibold'>Net Total</h3>
+                                    <p className='text-2xl'>RS:{getTotalAmount().toFixed(2)}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div className='mt-10 ml-4'>
+                            <table className='min-w-full bg-white'>
                                 <thead>
                                     <tr>
-                                        <th className='text-xl font-bold w-full md:w-1/4 px-2 py-2'>Description</th>
-                                        <th className='text-xl font-bold w-full md:w-1/4 px-2 py-2'>Amount</th>
-                                        <th className='text-xl font-bold w-full md:w-1/4 px-2 py-2'>Action</th>
+                                        <th className='py-2 px-4'>Description</th>
+                                        <th className='py-2 px-4'>Amount</th>
+                                        <th className='py-2 px-4'>Type</th>
+                                        <th className='py- px-4'>Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {transactions.map((t) => (
-                                        <tr key={t.id}>
-                                            <td className='w-full md:w-1/4 px-2 py-2'>{t.description}</td>
-                                            <td className={`w-full md:w-1/4 px-2 py-2 ${t.amount < 0 ? 'text-red-500' : 'text-green-500'}`}>{t.amount}</td>
-                                            <td className='w-full md:w-1/4 px-2 py-4'>
-                                                <div>
-                                                    <button className='bg-green-500 px-2 rounded-lg py-2 text-white mr-1' onClick={() => handleEdit(t)}>Edit</button>
-                                                    <button className='bg-red-500 px-2 rounded-lg py-2 text-white' onClick={() => handleDelete(t.id)}>Delete</button>
-                                                </div>
+                                    {transactions.map(transaction => (
+                                        <tr key={transaction.id}>
+                                            <td className='border px-4 py-2'>{transaction.description}</td>
+                                            <td className={`border px-4 py-2 ${transaction.amount < 0 ? 'text-red-500' : 'text-green-500'}`}>
+                                                {transaction.amount < 0 }{Math.abs(transaction.amount).toFixed(2)}
+                                            </td>
+                                            <td className='border px-4 py-2'>{transaction.amount < 0 ? 'Expense' : 'Income'}</td>
+                                            <td className='border px-4 py-2'>
+                                                <button
+                                                    className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-4 rounded mr-2'
+                                                    onClick={() => handleEdit(transaction)}
+                                                >
+                                                    Edit
+                                                </button>
+                                                <button
+                                                    className='bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-4 rounded'
+                                                    onClick={() => handleDelete(transaction.id)}
+                                                >
+                                                    Delete
+                                                </button>
                                             </td>
                                         </tr>
                                     ))}
                                 </tbody>
                             </table>
-                            <div className='justify-end flex flex-col bg-white p-4 rounded shadow-lg'>
-                                <div className='mt-4 text-xl font-bold flex'>
-                                    Income: <span className='text-green-500'>{getIncome()}</span>
-                                </div>
-                                <div className='mt-4 text-xl font-bold flex'>
-                                    Expense: <span className='text-red-500'>{getExpenses()}</span>
-                                </div>
-                                <div className='mt-4 text-xl font-bold'>
-                                    Total: <span className={getTotalAmount() < 0 ? 'text-red-500' : 'text-green-500'}>{getTotalAmount()}</span>
-                                </div>
-                            </div>
                         </div>
-                        <div className='mt-16 mb-4 lg:w-1/2 xl:w-1/3 p-5 mx-auto rounded shadow-lg border'>
-                            <h1 className='text-xl font-bold text-center mb-5'>Add Your Transaction</h1>
-                            <form onSubmit={addTransaction} className='flex text-center flex-col mx-auto border-double border-indigo-50'>
-                                <input
-                                    type="date"
-                                    className='border border-slate-300 rounded-md w-full px-2 py-2 mb-2'
-                                    value={date}
-                                    onChange={(e) => setDate(e.target.value)}
-                                />
-                                {errors.date && <span className='text-red-500'>{errors.date}</span>}
-                                <input
-                                    type='text'
-                                    className='border border-slate-300 rounded-md w-full px-2 py-2 mb-2'
-                                    placeholder='Description'
-                                    value={description}
-                                    onChange={(e) => setDescription(e.target.value)}
-                                />
-                                {errors.description && <span className='text-red-500'>{errors.description}</span>}
-                                <input
-                                    type='number'
-                                    className='border border-slate-300 rounded-md w-full px-2 py-2 mb-2'
-                                    placeholder='Amount'
-                                    value={amount}
-                                    onChange={(e) => setAmount(e.target.value)}
-                                />
-                                {errors.amount && <span className='text-red-500'>{errors.amount}</span>}
-                                <button className='bg-violet-500 hover:bg-violet-600 active:bg-violet-700 focus:outline-none text-white px-4 py-2 rounded-md'>{editId ? 'Update Transaction' : 'Add Transaction'}</button>
-                            </form>
-                        </div>
+                       
                     </div>
                 </div>
             </div>
