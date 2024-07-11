@@ -43,10 +43,10 @@ const LoginPage = () => {
         } catch(error) {
             setLoading(false);
             const err = error;
-            const { status } = err;
+            const { status, data } = err;
             
-            if (status === 401){
-                toast.error('Invalid UserName or Password');
+            if (status === 401 || status === 403|| status === 404 || status === 423){
+                toast.error(data.message);
             }
             else {
                 toast.error('An Error occurred, Please contact admin');

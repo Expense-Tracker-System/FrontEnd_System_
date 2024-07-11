@@ -8,7 +8,7 @@ import PieChartExpense from "../../../components/AnalysisComponents/PieChartExpe
 import { Button } from "react-bootstrap";
 import MulChartLine from "../../../components/AnalysisComponents/MulChartLine";
 import ButtonsSet from "../../../components/AnalysisComponents/ButtonsSet";
-import AnalysisButtonSet from "../../../components/AnalysisComponents/AnalysisButtonSet";
+import AnalysisButtonSet from "../../../components/AnalysisComponents/ButtonsSet.jsx";
 
 function UserAnalysisPage() {
   return (

@@ -91,7 +91,7 @@ const AuthContextProvider = ({ children }) => {
     // Initialize Method
     const initializeAuthContext = useCallback(async () => {
         try {
-            console.log(location.pathname);
+            // console.log(location.pathname);
             if(location.pathname == PATH_PUBLIC.home || location.pathname == PATH_PUBLIC.login || 
                 location.pathname == PATH_PUBLIC.register || location.pathname == PATH_AFTER_LOGIN_ADMIN.home ||
                 location.pathname == PATH_AFTER_LOGIN_ADMIN.login
@@ -145,8 +145,9 @@ const AuthContextProvider = ({ children }) => {
             password,
             confirmPassword,
         });
-        console.log('Register Result:', response);
-        toast.success('Register Was Successfull. Please Login.');
+        const { status, data } = response;
+        // console.log('Register Result:', );
+        toast.success(data);
         navigate(PATH_AFTER_REGISTER);
     },[]);
 

@@ -3,9 +3,9 @@ import moment from 'moment';
 const UsersTableSection = ({ usersList }) => {
     const RoleClassNameCreator = (Roles) => {
         let className = 'flex justify-center w-50 py-1 text-white rounded-3xl ';
-        if(Roles === 'Admin'){
+        if(Roles.includes('ADMIN')){
             className += 'bg-[#0B96BC]';
-        } else if(Roles === 'User'){
+        } else if(Roles.includes('USER')){
             className += 'bg-[#FEC223]';
         }
         return className;
@@ -35,6 +35,7 @@ const UsersTableSection = ({ usersList }) => {
                         <div className='flex items-center'>{moment(user.createdAt).format('YYYY-MM-DD|HH:mm')}</div>
                         <div className='flex items-center justify-center'>
                             <span className={RoleClassNameCreator(user.roles)}>{user.roles}</span>
+                            {/* console.log({user.roles}); */}
                         </div>
                     </div>
                 ))

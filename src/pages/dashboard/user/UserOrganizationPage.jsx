@@ -9,7 +9,7 @@ const UserOrganizationPage = () => {
                 <CreateOrganizationPage />
             </div>
             <div>
-                 <ViewOrganizations/>
+                <ViewOrganizations/>
             </div>
         </div>
     )

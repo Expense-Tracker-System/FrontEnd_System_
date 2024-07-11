@@ -12,7 +12,7 @@ const LatestUsersSection = ({ usersList }) => {
         <div className="col-span-1 bg-wjite p-2 rounded-md">
             <h1 className="text-xl font-bold">Latest Users</h1>
             {
-                selectedUsers.slice(0,7).map((item) => (
+                selectedUsers.slice(0,3).map((item) => (
                     <div key={item.id} className="bg-gray-100 p-2 my-4 rounded-md">
                         <div className="flex justify-between items-center">
                             <span className="text-lg font-bold">{item.userName}</span>

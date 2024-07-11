@@ -9,14 +9,14 @@ const axiosInstance = axios.create({ baseURL: HOST_API_KEY });
 // get the expiration true or false
 const getTokenExpiration = (token) => {
     const jwtPayload = JSON.parse(atob(token.split('.')[1]));
-    console.log(new Date(jwtPayload.exp * 1000));
+    // console.log(new Date(jwtPayload.exp * 1000));
     return jwtPayload.exp * 1000;
 }
 
 // check token is expire
 const isTokenExpired = (token) => {
     const expirationTime = getTokenExpiration(token);
-    console.log(Date.now() > expirationTime);
+    // console.log(Date.now() > expirationTime);
     return Date.now() > expirationTime;
 }
 

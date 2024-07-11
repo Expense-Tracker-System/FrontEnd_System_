@@ -16,7 +16,7 @@ const AdminSettings = () => {
     return (
         <div className="pageTemplate2">
             <h1 className='text-3xl font-bold'>Setting</h1>
-            <div className="container mx-auto">
+            <div className="">
                 <div className="flex flex-col bg-white shadow-md rounded-lg">
                     <div className="flex justify-center">
                         <div className="flex-grow max-w-fit">
