@@ -24,12 +24,21 @@ import {
     UPDATE_USER_USERNAME,
     UPDATE_USER_PASSWORD,
     UPDATE_USER_PROFILE,
+    LOGIN_WITH_2FA,
 } from '../utils/globalConfig';
 import { PATH_PUBLIC } from '../routes/paths';
 
 // We need a reducer function for useReducer hook
 const authReducer = (state,action) => {
     if(action.type === 'LOGIN'){
+        return {
+            ...state,
+            isAuthenticated: true,
+            isAuthLoading: false,
+            user: action.payload,
+        }
+    }
+    if(action.type === 'LOGIN_WITH_2FA'){
         return {
             ...state,
             isAuthenticated: true,
@@ -158,16 +167,40 @@ const AuthContextProvider = ({ children }) => {
             password,
             pathName
         });
-        toast.success('Login Was Successful');
 
-        // In response, we receive jwt token and user data
-        const { newToken, userInfo } = response.data;
+        const { status, data } = response;
+        const { newToken, is2FactorRequired, message, provider, userInfo } = data;
+
+        if(is2FactorRequired){
+            toast.success(message);
+            return { is2FactorRequired, provider, userName };
+        }
+
+        toast.success(message);
         setSession(newToken);
         dispatch({
             type: 'LOGIN',
             payload: userInfo,
         });
         // console.log(userInfo.roles);
+        userInfo.roles.includes("ADMIN") ? navigate(PATH_AFTER_LOGIN_ADMIN) : navigate(PATH_AFTER_LOGIN_USER);
+    },[]);
+
+    // login with 2FA
+    const loginWith2FA = useCallback(async(userName, provider, token) => {
+        const response = await axiosInstance.post(LOGIN_WITH_2FA, {
+            userName,
+            provider,
+            token
+        });
+        const { status, data } = response;
+        const { message, newToken, userInfo } = data;
+        toast.success(message);
+        setSession(newToken);
+        dispatch({
+            type: 'LOGIN_WITH_2FA',
+            payload: userInfo,
+        });
         userInfo.roles.includes("ADMIN") ? navigate(PATH_AFTER_LOGIN_ADMIN) : navigate(PATH_AFTER_LOGIN_USER);
     },[]);
 
@@ -239,6 +272,7 @@ const AuthContextProvider = ({ children }) => {
         user: state.user,
         register,
         login,
+        loginWith2FA,
         logout,
         updateUserName,
         updateUserPassword,

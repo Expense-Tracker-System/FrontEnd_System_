@@ -4,6 +4,7 @@ import { PATH_DASHBOARD_ADMIN, PATH_DASHBOARD_USER, PATH_PUBLIC } from "../route
 export const HOST_API_KEY = 'https://localhost:7026/api';
 export const REGISTER_URL = 'https://localhost:7026/api/Auth/Register';
 export const LOGIN_URL = 'https://localhost:7026/api/Auth/Login';
+export const LOGIN_WITH_2FA = 'https://localhost:7026/api/Auth/twoFactor';
 export const ME_URL = 'https://localhost:7026/api/Auth/me';
 export const USERS_LIST_URL = 'https://localhost:7026/api/Auth/users';
 export const USERNAMES_LIST_URL = 'https://localhost:7026/api/Auth/usernames';
