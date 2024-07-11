@@ -47,6 +47,14 @@ const UserSecuritySetting = () => {
         }
     };
 
+    const handleSubmit2FA = (e) => {
+        e.preventDefault();
+    }
+
+    const hadle2FA = () => {
+        console.log(twoFactor);
+    }
+
     return (
         <div className='w-full'>
             <div className="px-5 py-2 border-2 border-[#ededed] rounded-lg">
@@ -154,7 +162,7 @@ const UserSecuritySetting = () => {
                 )}
             </div>
             <div className='px-5 py-2 border-2 border-[#ededed] rounded-lg mt-2'>
-                <form>
+                <form onSubmit={handleSubmit2FA}>
                     <h2 className='text-2xl font-bold mb-4'>Two-Factor Authentication</h2>
                     <div className=''>
                         <label className='flex items-center justify-between'>
@@ -170,6 +178,7 @@ const UserSecuritySetting = () => {
                     <button
                         type="submit"
                         className="mt-4 px-4 py-2 bg-primary-600 text-black rounded-md"
+                        onClick={hadle2FA}
                     >
                         Save
                     </button>
