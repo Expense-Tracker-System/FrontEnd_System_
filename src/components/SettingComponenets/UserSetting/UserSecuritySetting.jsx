@@ -1,16 +1,20 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import axiosInstance from '../../../utils/axiosInstance';
-import { DEACTIVATE_USER_ACCOUNT } from '../../../utils/globalConfig';
+import { DEACTIVATE_USER_ACCOUNT, UPDATE_2FA } from '../../../utils/globalConfig';
 import toast from 'react-hot-toast';
+import useAuth from '../../../hooks/useAuth.hook';
 
 const UserSecuritySetting = () => {
+    const { user, update2FA } = useAuth();
     const [open, setOpen] = useState(false);
     const [deactivationReason, setDeactivationReason] = useState('');
     const [otherReason, setOtherReason] = useState('');
     const [reactivationDate, setReactivationDate] = useState('');
-    const [twoFactor, setTwoFactor] = useState(false);
+    const [twoFactor, setTwoFactor] = useState(user.twoFactorEnabled);
     const [errorMessageForReason, setErrorMessageForReason] = useState('');
     const [errorMessageForDate, setErrorMessageForDate] = useState('');
+    // const [loading2FA, setLoading2FA] = useState(false);
+    const isInitialMount = useRef(true);
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -22,6 +26,10 @@ const UserSecuritySetting = () => {
             setErrorMessageForDate('Please Select the ')
         }
     };
+
+    // const handleSubmit2FA = (e) => {
+    //     e.preventDefault();
+    // }
 
     const handleClickOpen = () => {
         setOpen(true);
@@ -47,13 +55,32 @@ const UserSecuritySetting = () => {
         }
     };
 
-    const handleSubmit2FA = (e) => {
-        e.preventDefault();
+    const hadle2FA = async() => {
+        try{
+            await update2FA(twoFactor);
+        }catch(error){
+            // setLoading2FA(false);
+            const err = error;
+            const { status, data } = err;
+            if(status === 400 || status === 401 || status === 404){
+                toast.error(data);
+            }
+            else{
+                toast.error("An error occured, Please contact admin");
+            }
+        }
     }
 
-    const hadle2FA = () => {
-        console.log(twoFactor);
-    }
+    // comming leader
+    useEffect(() => {
+        if(isInitialMount.current){
+            isInitialMount.current = false;
+        }
+        else{
+            hadle2FA();
+        }
+        console.log(user.twoFactorEnabled);
+    },[twoFactor]);
 
     return (
         <div className='w-full'>
@@ -128,7 +155,7 @@ const UserSecuritySetting = () => {
                         <div className="mb-6">
                             <button
                                 type='submit'
-                                className="px-4 py-2 bg-red-100 text-red-600 rounded-md"
+                                className="px-4 py-2 bg-red-100 font-bold text-red-600 rounded-[15px]"
                                 onClick={handleClickOpen}
                             >
                                 Deactivate Account
@@ -145,13 +172,13 @@ const UserSecuritySetting = () => {
                             <p className="mb-4">Are you sure you want to deactivate your account? This action cannot be undone.</p>
                             <div className="flex justify-end">
                                 <button
-                                    className="px-4 py-2 bg-gray-100 text-gray-700 rounded-md mr-2"
+                                    className="px-4 py-2 bg-gray-100 font-bold text-gray-700 rounded-[15px] mr-2"
                                     onClick={handleClose}
                                 >
                                     No
                                 </button>
                                 <button
-                                    className="px-4 py-2 bg-red-100 text-red-600 rounded-md"
+                                    className="px-4 py-2 bg-red-100 font-bold text-red-600 rounded-[15px]"
                                     onClick={handleDeactivate}
                                 >
                                     Yes
@@ -161,8 +188,8 @@ const UserSecuritySetting = () => {
                     </div>
                 )}
             </div>
-            <div className='px-5 py-2 border-2 border-[#ededed] rounded-lg mt-2'>
-                <form onSubmit={handleSubmit2FA}>
+            <div className='px-5 py-10 border-2 border-[#ededed] rounded-lg mt-2'>
+                <form>
                     <h2 className='text-2xl font-bold mb-4'>Two-Factor Authentication</h2>
                     <div className=''>
                         <label className='flex items-center justify-between'>
@@ -175,13 +202,17 @@ const UserSecuritySetting = () => {
                             />
                         </label>
                     </div>
-                    <button
+                    {/* <button
                         type="submit"
-                        className="mt-4 px-4 py-2 bg-primary-600 text-black rounded-md"
+                        className="mt-4 px-4 py-2 bg-green-400 font-bold text-white rounded-[15px]"
                         onClick={hadle2FA}
                     >
-                        Save
-                    </button>
+                        { loading2FA ? (
+                            <div className='w-6 h-6 rounded-full animate-spin border-2 border-gray-400 border-t-gray-800'></div>
+                        ) : (
+                            "Send"
+                        )}
+                    </button> */}
                 </form>
             </div>
         </div>

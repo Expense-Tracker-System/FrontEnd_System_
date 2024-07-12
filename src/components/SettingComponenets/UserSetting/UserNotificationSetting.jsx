@@ -49,7 +49,7 @@ const UserNotificationSetting = () => {
                     </div>
                     <button
                         type="submit"
-                        className="mt-4 px-4 py-2 bg-primary-600 text-black rounded-md"
+                        className="mt-4 px-4 py-2 bg-green-400 font-bold text-white rounded-[15px]"
                     >
                         Save
                     </button>

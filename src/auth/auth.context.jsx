@@ -25,6 +25,7 @@ import {
     UPDATE_USER_PASSWORD,
     UPDATE_USER_PROFILE,
     LOGIN_WITH_2FA,
+    UPDATE_2FA,
 } from '../utils/globalConfig';
 import { PATH_PUBLIC } from '../routes/paths';
 
@@ -71,6 +72,14 @@ const authReducer = (state,action) => {
         }
     }
     if(action.type == 'UPDATE_USER_PROFILE'){
+        return {
+            ...state,
+            isAuthenticated: true,
+            isAuthLoading: false,
+            user: action.payload
+        }
+    }
+    if(action.type == 'UPDATE_2FA'){
         return {
             ...state,
             isAuthenticated: true,
@@ -264,6 +273,19 @@ const AuthContextProvider = ({ children }) => {
         });
     });
 
+    // Update 2FA
+    const update2FA = useCallback(async(twoFactor) => {
+        const response = await axiosInstance.put(UPDATE_2FA, { twoFactor });
+        const { status, data } = response;
+        const { newToken, userInfo, message } = data;
+        toast.success(message);
+        setSession(newToken);
+        dispatch({
+            type: 'UPDATE_2FA',
+            payload: userInfo
+        });
+    });
+
     // We create an object for values of context provider
     // This will keep our codes more readable
     const valuesObject = {
@@ -277,6 +299,7 @@ const AuthContextProvider = ({ children }) => {
         updateUserName,
         updateUserPassword,
         updateUserProfile,
+        update2FA,
     };
 
     return ( <AuthContext.Provider value={valuesObject}>{children}</AuthContext.Provider> )

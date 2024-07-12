@@ -23,6 +23,7 @@ export const GET_OUT_MESSAGES = 'https://localhost:7026/api/OutMessages/get';
 export const UPDATE_USER_PASSWORD = 'https://localhost:7026/api/UserPassword/updateUserPassword';
 export const UPDATE_USER_USERNAME = 'https://localhost:7026/api/UserUserName/updateUserName';
 export const UPDATE_USER_PROFILE = 'https://localhost:7026/api/UserProfile/updateUserProfile';
+export const UPDATE_2FA = 'https://localhost:7026/api/TwoFactorAuthentication/Update2FA';
 export const DEACTIVATE_USER_ACCOUNT = 'https://localhost:7026/api/DeactivateUserAccount/createDeactivateRequest';
 export const CREATE_ORGANIZATION = 'https://localhost:7026/CreateOrganization';
 
