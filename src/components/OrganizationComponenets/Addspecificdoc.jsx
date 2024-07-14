@@ -1,70 +1,76 @@
-// src/components/OrganizationComponents/Addspecificdoc.jsx
+// src/components/OrganizationComponents/AddSpecificDoc.jsx
+import React, { useState } from 'react';
+import { Box, Button, Typography, TextField } from '@mui/material';
+import { styled } from '@mui/system';
+import './AddSpecificDoc.css';
 
-import React from 'react';
-import { Box, Button, Typography, Container } from '@mui/material';
-import { makeStyles } from '@mui/styles';
+const Container = styled(Box)({
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  justifyContent: 'center',
+  height: '100vh',
+});
 
-const useStyles = makeStyles((theme) => ({
-  root: {
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    minHeight: '100vh',
-    backgroundColor: '#f4f6f8',
+const CustomBox = styled(Box)({
+  width: '300px',
+  padding: '20px',
+  border: '1px solid black',
+  borderRadius: '8px',
+  textAlign: 'center',
+});
+
+const CustomButton = styled(Button)({
+  backgroundColor: 'black',
+  color: 'white',
+  marginBottom: '10px',
+  '&:last-child': {
+    marginBottom: '0',
   },
-  box: {
-    padding: theme.spacing(4),
-    backgroundColor: '#fff',
-    boxShadow: theme.shadows[5],
-    borderRadius: theme.shape.borderRadius,
-    textAlign: 'center',
-  },
-  button: {
-    margin: theme.spacing(1),
-    backgroundColor: '#a5d6a7',
-    color: '#fff',
-    '&:hover': {
-      backgroundColor: '#81c784',
-    },
-  },
-}));
+});
 
 const AddSpecificDoc = () => {
-  const classes = useStyles();
+  const [docName, setDocName] = useState('');
+  const [error, setError] = useState(false);
 
-  const handleAddDocument = () => {
-    // Add document logic here
-    console.log('Add Document clicked');
+  const handleAdd = () => {
+    if (!docName) {
+      setError(true);
+    } else {
+      setError(false);
+      // Handle Add Document logic
+      console.log('Document Added:', docName);
+    }
   };
 
-  const handleDownloadDocument = () => {
-    // Download document logic here
-    console.log('Download Document clicked');
+  const handleView = () => {
+    // Handle View Document logic
+    console.log('Viewing Documents');
   };
 
   return (
-    <Container className={classes.root}>
-      <Box className={classes.box}>
-        <Typography variant="h6" gutterBottom>
-          You can Upload and Download Specific Documents
+    <Container>
+      <CustomBox>
+        <Typography variant="h5" gutterBottom>
+          Specific Documents
         </Typography>
-        <Box mt={2}>
-          <Button
-            className={classes.button}
-            onClick={handleAddDocument}
-            variant="contained"
-          >
-            Add Documents
-          </Button>
-          <Button
-            className={classes.button}
-            onClick={handleDownloadDocument}
-            variant="contained"
-          >
-            Download Document
-          </Button>
-        </Box>
-      </Box>
+        <TextField
+          label="Document Name"
+          variant="outlined"
+          fullWidth
+          value={docName}
+          onChange={(e) => setDocName(e.target.value)}
+          error={error}
+          helperText={error ? 'Document name is required' : ''}
+          sx={{ marginBottom: '20px' }}
+        />
+        <CustomButton variant="contained" onClick={handleAdd}>
+          Add Documents
+        </CustomButton>
+        <CustomButton variant="contained" onClick={handleView}>
+          View Documents
+        </CustomButton>
+      </CustomBox>
     </Container>
   );
 };

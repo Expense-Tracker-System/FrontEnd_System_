@@ -1,40 +1,32 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import './OrganizationsList.css'; // Ensure the CSS file path is correct based on your project structure
 import { useNavigate } from 'react-router-dom';
-import { PATH_DASHBOARD_USER } from '../../routes/paths';
 import axiosInstance from '../../utils/axiosInstance';
+import './OrganizationsList.css'; 
 
 function ViewOrganizations() {
     const [organizations, setOrganizations] = useState([]);
     const [error, setError] = useState('');
-    const [showTable, setShowTable] = useState(false); // State to control table visibility
+    const [showTable, setShowTable] = useState(false); 
     const navigate = useNavigate();
 
     useEffect(() => {
-        axiosInstance.get('https://localhost:7026/api/UserOrganizations/my-organizations') // Adjust the URL to your API
+        axiosInstance.get('https://localhost:7026/api/UserOrganizations/my-organizations') 
             .then(response => {
-                console.log("-------------")
-                console.log("-------------")
                 setOrganizations(response.data);
-                console.log(organizations)
             })
             .catch(error => {
                 console.error('Error fetching organizations:', error);
-
                 setError('Failed to fetch organizations. Please try again later.');
             });
     }, []);
 
     const handleButtonClick = () => {
-        setShowTable(true); // Show the table when button is clicked
+        setShowTable(true); 
     };
 
     const handleViewButtonClick = (id) => {
-        // Implement the view organization logic here
         console.log(`View Organization with ID: ${id}`);
         navigate(`/user/dashboard/organization/organization-profile?id=${id}`);
-        
     };
 
     if (error) {

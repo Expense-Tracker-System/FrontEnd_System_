@@ -77,7 +77,7 @@ const TakeAmount = () => {
             variant="contained"
             color="success"
             fullWidth
-            sx={{ marginTop: '16px', backgroundColor: 'lightgreen' }}
+            sx={{ marginTop: '16px', backgroundColor: 'black', color: 'white' }}
           >
             Add Amount
           </Button>

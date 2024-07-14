@@ -27,10 +27,9 @@ function ReportPage() {
             return;
         }
         if (!validateDates()) {
-            return; // Stop the function if validation fails
+            return;
         }
 
-        // Clear existing report data before fetching new data
         setReportData(null);
 
         const formattedStartDate = startDate.toISOString().split('.')[0];
@@ -39,7 +38,7 @@ function ReportPage() {
 
         try {
             const response = await axios.get(url);
-            setReportData(response.data); // Set new report data
+            setReportData(response.data);
         } catch (error) {
             console.error('Failed to fetch:', error);
             alert(`Failed to fetch data: ${error.message}`);
@@ -57,36 +56,23 @@ function ReportPage() {
         doc.text("Financial Report", 14, 16);
         doc.text(`Date: ${new Date().toLocaleDateString()}`, 14, 22);
 
-        if (reportData.incomes && reportData.incomes.length > 0) {
-            doc.text("Incomes:", 14, 30);
-            const incomeData = reportData.incomes.map((income, index) => [
-                index + 1, 
-                income.category, 
-                `$${income.amount}`, 
-                new Date(income.createdAt).toLocaleDateString()
+        const addSectionToPDF = (title, data) => {
+            doc.text(title, 14, doc.previousAutoTable ? doc.previousAutoTable.finalY + 10 : 30);
+            const tableData = data.items.map((item, index) => [
+                index + 1,
+                item.category,
+                `$${item.amount}`,
+                new Date(item.createdDate2).toLocaleDateString()
             ]);
             doc.autoTable({
                 head: [['#', 'Category', 'Amount', 'Date']],
-                body: incomeData,
-                startY: 36,
+                body: tableData,
+                startY: doc.previousAutoTable ? doc.previousAutoTable.finalY + 16 : 36,
             });
-        }
+        };
 
-        if (reportData.expenses && reportData.expenses.length > 0) {
-            const startY = doc.previousAutoTable.finalY + 10;
-            doc.text("Expenses:", 14, startY);
-            const expenseData = reportData.expenses.map((expense, index) => [
-                index + 1, 
-                expense.category, 
-                `$${expense.amount}`, 
-                new Date(expense.createdAt).toLocaleDateString()
-            ]);
-            doc.autoTable({
-                head: [['#', 'Category', 'Amount', 'Date']],
-                body: expenseData,
-                startY: startY + 6,
-            });
-        }
+        reportData.monthlyIncomes.forEach(month => addSectionToPDF(`Incomes (${month.month}/${month.year})`, month));
+        reportData.monthlyExpenses.forEach(month => addSectionToPDF(`Expenses (${month.month}/${month.year})`, month));
 
         const finalY = doc.previousAutoTable.finalY + 10;
         doc.text(`Total Income: $${reportData.totalIncomes}`, 14, finalY);
@@ -107,54 +93,64 @@ function ReportPage() {
             
             {reportData ? (
                 <div className='All-Table'>
-                    <h2 className="incomehedder">Income</h2>
-                    <div className="table-container">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>No</th>
-                                    <th>Category</th>
-                                    <th>Amount</th>
-                                    <th>Date</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {reportData.incomes.map((income, index) => (
-                                    <tr key={index}>
-                                        <td>{index + 1}</td>
-                                        <td>{income.category}</td>
-                                        <td>${income.amount}</td>
-                                        <td>{new Date(income.createdAt).toLocaleDateString()}</td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
+                    {reportData.monthlyIncomes.map((month, idx) => (
+                        <div key={idx}>
+                            <h2 className="incomehedder">Income for {month.month}/{month.year}</h2>
+                            <div className="table-container">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>No</th>
+                                            <th>Category</th>
+                                            <th>Amount</th>
+                                            <th>Date</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {month.items.map((income, index) => (
+                                            <tr key={index}>
+                                                <td>{index + 1}</td>
+                                                <td>{income.category}</td>
+                                                <td>${income.amount}</td>
+                                                <td>{new Date(income.createdDate2).toLocaleDateString()}</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    ))}
+
                     <h3>Total Income: ${reportData.totalIncomes}</h3>
 
-                    <h2 className="expencehedder">Expenses</h2>
-                    <div className="table-container">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>No</th>
-                                    <th>Category</th>
-                                    <th>Amount</th>
-                                    <th>Date</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {reportData.expenses.map((expense, index) => (
-                                    <tr key={index}>
-                                        <td>{index + 1}</td>
-                                        <td>{expense.category}</td>
-                                        <td>${expense.amount}</td>
-                                        <td>{new Date(expense.createdAt).toLocaleDateString()}</td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
+                    {reportData.monthlyExpenses.map((month, idx) => (
+                        <div key={idx}>
+                            <h2 className="expencehedder">Expenses for {month.month}/{month.year}</h2>
+                            <div className="table-container">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>No</th>
+                                            <th>Category</th>
+                                            <th>Amount</th>
+                                            <th>Date</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {month.items.map((expense, index) => (
+                                            <tr key={index}>
+                                                <td>{index + 1}</td>
+                                                <td>{expense.category}</td>
+                                                <td>${expense.amount}</td>
+                                                <td>{new Date(expense.createdDate2).toLocaleDateString()}</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    ))}
+
                     <h3>Total Expenses: ${reportData.totalExpenses}</h3>
 
                     <h3>Total Balance: ${reportData.totalBalance}</h3>

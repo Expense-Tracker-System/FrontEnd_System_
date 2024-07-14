@@ -3,11 +3,11 @@ import { Bar, Pie } from 'react-chartjs-2';
 import axios from 'axios';
 import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
-import './chart.css';  // Make sure your CSS is correctly linked
+import './chart.css';  
 
 const Chart = () => {
-    const [startDate, setStartDate] = useState(new Date());
-    const [endDate, setEndDate] = useState(new Date());
+    const [startDate, setStartDate] = useState(new Date(new Date().setDate(new Date().getDate() - 30))); 
+    const [endDate, setEndDate] = useState(new Date()); // Today's date
     const [chartData, setChartData] = useState({});
     const [chartType, setChartType] = useState('bar'); // Default to 'bar' chart
 
@@ -19,19 +19,38 @@ const Chart = () => {
                     endDate: endDate.toISOString()
                 }
             });
-            const { incomes, expenses } = response.data;
+
+            const { monthlyIncomes, monthlyExpenses } = response.data;
+            const labels = [];
+            const incomesData = [];
+            const expensesData = [];
+
+            monthlyIncomes.forEach(monthlyIncome => {
+                monthlyIncome.items.forEach(item => {
+                    labels.push(`${monthlyIncome.year}-${monthlyIncome.month}-${item.category}`);
+                    incomesData.push(item.amount);
+                });
+            });
+
+            monthlyExpenses.forEach(monthlyExpense => {
+                monthlyExpense.items.forEach(item => {
+                    labels.push(`${monthlyExpense.year}-${monthlyExpense.month}-${item.category}`);
+                    expensesData.push(item.amount);
+                });
+            });
+
             setChartData({
-                labels: incomes.map(item => item.category),
+                labels: labels,
                 datasets: [
                     {
-                        label: 'Incomes',
-                        data: incomes.map(item => item.amount),
-                        backgroundColor: 'rgba(0, 0, 139, 0.5)', // Changed to dark blue
+                        label: 'Expenses',
+                        data: incomesData,
+                        backgroundColor: '#32CD32', // Dashboard Green
                     },
                     {
-                        label: 'Expenses',
-                        data: expenses.map(item => item.amount),
-                        backgroundColor: 'rgba(173, 216, 230, 0.5)', // Light blue (white-blue)
+                        label: 'Incomes',
+                        data: expensesData,
+                        backgroundColor: 'rgba(0, 0, 0, 1)', // Hard Black
                     }
                 ]
             });
@@ -60,17 +79,31 @@ const Chart = () => {
         },
         layout: {
             padding: 20
+        },
+        scales: {
+            x: {
+                ticks: {
+                    autoSkip: false,
+                    maxRotation: 90,
+                    minRotation: 45
+                }
+            },
+            y: {
+                beginAtZero: true
+            }
         }
     };
 
     return (
         <div>
             <div className="container">
-                <DatePicker className="input-field" selected={startDate} onChange={date => setStartDate(date)} dateFormat="yyyy/MM/dd" />
-                <DatePicker className="input-field" selected={endDate} onChange={date => setEndDate(date)} dateFormat="yyyy/MM/dd" />
-                <button className="report-button" onClick={toggleChartType}>
-                    Switch Chart
-                </button>
+                <div className="input-container">
+                    <DatePicker className="input-field" selected={startDate} onChange={date => setStartDate(date)} dateFormat="yyyy/MM/dd" />
+                    <DatePicker className="input-field" selected={endDate} onChange={date => setEndDate(date)} dateFormat="yyyy/MM/dd" />
+                    <button className="report-button" onClick={toggleChartType}>
+                        Switch Chart
+                    </button>
+                </div>
             </div>
             {Object.keys(chartData).length ? (
                 <>
@@ -82,11 +115,10 @@ const Chart = () => {
                     )}
                 </>
             ) : (
-                <p className="message">Please generate a report to see data here.</p>
+                <p className="message">Please generate Charts to see data here.</p>
             )}
         </div>
     );
 };
 
 export default Chart;
-

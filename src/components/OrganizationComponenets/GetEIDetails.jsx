@@ -3,32 +3,38 @@ import { TextField, Button, Container, Grid, Typography, Paper, AppBar, Toolbar,
 import axios from 'axios';
 
 const GetEIDetails = () => {
-    const [organizationIncome, setOrganizationIncome] = useState({ description: '', amount: '' });
-    const [organizationExpense, setOrganizationExpense] = useState({ description: '', amount: '' });
+    const [organizationIncome, setOrganizationIncome] = useState({ description: '', amount: '', orgId: '' });
+    const [organizationExpense, setOrganizationExpense] = useState({ description: '', amount: '', orgId: '' });
     const [errors, setErrors] = useState({ income: {}, expense: {} });
+    const orgid = new URLSearchParams(location.search).get('id');
 
     const handleChange = (e, type) => {
         const { name, value } = e.target;
         if (type === 'income') {
-            setOrganizationIncome({ ...organizationIncome, [name]: value });
+            setOrganizationIncome({ ...organizationIncome, [name]: value, orgId: orgid });
         } else {
-            setOrganizationExpense({ ...organizationExpense, [name]: value });
+            setOrganizationExpense({ ...organizationExpense, [name]: value, orgId: orgid });
         }
     };
 
-    const validate = () => {
+    const validate = (type) => {
         let tempErrors = { income: {}, expense: {} };
-        if (!organizationIncome.description) tempErrors.income.description = "Description is required.";
-        if (!organizationIncome.amount) tempErrors.income.amount = "Amount is required.";
-        if (!organizationExpense.description) tempErrors.expense.description = "Description is required.";
-        if (!organizationExpense.amount) tempErrors.expense.amount = "Amount is required.";
+        if (type === 'income') {
+            if (!organizationIncome.description) tempErrors.income.description = "Description is required.";
+            if (!organizationIncome.amount) tempErrors.income.amount = "Amount is required.";
+        } else {
+            if (!organizationExpense.description) tempErrors.expense.description = "Description is required.";
+            if (!organizationExpense.amount) tempErrors.expense.amount = "Amount is required.";
+        }
 
         setErrors(tempErrors);
-        return Object.values(tempErrors.income).every(x => x === "") && Object.values(tempErrors.expense).every(x => x === "");
+        return type === 'income'
+            ? Object.values(tempErrors.income).every(x => x === "")
+            : Object.values(tempErrors.expense).every(x => x === "");
     };
 
     const handleSubmit = async (type) => {
-        if (validate()) {
+        if (validate(type)) {
             try {
                 if (type === 'income') {
                     await axios.post('https://localhost:7026/api/OrganizationIncome', organizationIncome);
@@ -76,7 +82,7 @@ const GetEIDetails = () => {
                             color="success"
                             onClick={() => handleSubmit('income')}
                             fullWidth
-                            sx={{ mt: 2 ,backgroundColor: 'lightgreen' }}
+                            sx={{ mt: 2 ,backgroundColor: 'black', color: 'white'}}
                         >
                             Add Organization Income
                         </Button>
@@ -110,7 +116,7 @@ const GetEIDetails = () => {
                             color="success"
                             onClick={() => handleSubmit('expense')}
                             fullWidth
-                            sx={{ mt: 2 ,backgroundColor: 'lightgreen'}}
+                            sx={{ mt: 2 ,backgroundColor: 'black', color: 'white'}}
                         >
                             Add Organization Expense
                         </Button>
@@ -126,7 +132,7 @@ const GetEIDetails = () => {
                 <Toolbar>
                     <Box sx={{ flexGrow: 1, display: 'flex', justifyContent: 'center' }}>
                         <Typography variant="h6">
-                            Add Incomes and Expenses Here(Only Organization Leader Can Apply This Form.)
+                            Add Incomes and Expenses Here (Only Organization Leader Can Apply This Form.)
                         </Typography>
                     </Box>
                 </Toolbar>

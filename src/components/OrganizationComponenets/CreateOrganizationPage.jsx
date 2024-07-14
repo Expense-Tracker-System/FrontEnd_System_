@@ -115,7 +115,7 @@ const CreateOrganizationPage = () => {
             </List>
           )}
 
-          <Button variant="contained" color="success" onClick={handleCreateOrganization} sx={{ bgcolor: 'lightgreen', width: '100%', height: '40px', marginTop: '20px' }}>
+          <Button variant="contained" color="success" onClick={handleCreateOrganization} sx={{ bgcolor: 'black', width: '100%', height: '40px', marginTop: '20px' }}>
             Create
           </Button>
         </>
