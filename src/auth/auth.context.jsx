@@ -193,6 +193,8 @@ const AuthContextProvider = ({ children }) => {
         });
         // console.log(userInfo.roles);
         userInfo.roles.includes("ADMIN") ? navigate(PATH_AFTER_LOGIN_ADMIN) : navigate(PATH_AFTER_LOGIN_USER);
+
+        return { is2FactorRequired };
     },[]);
 
     // login with 2FA

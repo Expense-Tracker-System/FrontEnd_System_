@@ -110,10 +110,17 @@ const UserProfileSetting = () => {
             restetUserProfile();
         } catch (error) {
             setLoadingUserProfile(false);
-            resetUserPassword();
-            toast.error('Án error occured. please contact admin');
-        }
+            restetUserProfile();
+            const err = error;
+            const { status, data } = err;
 
+            if (status === 401 || status === 404 || status === 400) {
+                toast.error(data);
+            }
+            else {
+                toast.error('An Error occurred, Please contact admin');
+            }
+        }
     };
 
     // API endpoint calling...

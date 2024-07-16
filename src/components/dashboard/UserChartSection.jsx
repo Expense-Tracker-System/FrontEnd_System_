@@ -7,9 +7,9 @@ const UserChartSection = ({ usersList }) => {
     const chartLabels = ['admin','user'];
     const chartValues = [];
 
-    const adminsCount = usersList.filter((q) => q.roles.includes('Admin')).length;
+    const adminsCount = usersList.filter((q) => q.roles.includes('ADMIN')).length;
     chartValues.push(adminsCount);
-    const usersCount = usersList.filter((q) => q.roles.includes('User')).length;
+    const usersCount = usersList.filter((q) => q.roles.includes('USER')).length;
     chartValues.push(usersCount);
 
     const chartOptions = {

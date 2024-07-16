@@ -3,6 +3,7 @@ import axiosInstance from '../../../utils/axiosInstance';
 import { DEACTIVATE_USER_ACCOUNT, UPDATE_2FA } from '../../../utils/globalConfig';
 import toast from 'react-hot-toast';
 import useAuth from '../../../hooks/useAuth.hook';
+import moment from 'moment';
 
 const UserSecuritySetting = () => {
     const { user, update2FA } = useAuth();
@@ -23,7 +24,7 @@ const UserSecuritySetting = () => {
             setErrorMessageForReason('Plaese Given Reason For Deactivation');
         }
         if(reactivationDate == ''){
-            setErrorMessageForDate('Please Select the ')
+            setErrorMessageForDate('Please Select The Date For Reactivation');
         }
     };
 
@@ -39,17 +40,21 @@ const UserSecuritySetting = () => {
         setOpen(false);
     };
 
-    const handleDeactivate = () => {
+    const handleDeactivate = async() => {
         // Handle deactivation
         try{
             const deactivateUserAccount = {
                 deactivationReason: deactivationReason == 'other' ? otherReason : deactivationReason,
                 reactivationDate: reactivationDate
             }
-            axiosInstance.post(DEACTIVATE_USER_ACCOUNT, deactivateUserAccount);
-            toast.success("Deactivation request send Successfully");
+            console.log(deactivateUserAccount);
+            const response =await axiosInstance.post(DEACTIVATE_USER_ACCOUNT, deactivateUserAccount);
+            const { status, data } = response;
+            toast.success(data);
         }catch(error){
-            toast.error("An error occured, please contact admin");
+            const err = error;
+            const { status, data } = err;
+            toast.error(data);
         }finally{
             setOpen(false);
         }
@@ -79,8 +84,13 @@ const UserSecuritySetting = () => {
         else{
             hadle2FA();
         }
-        console.log(user.twoFactorEnabled);
+        // console.log(user.twoFactorEnabled);
     },[twoFactor]);
+
+    // Function to get the minimum allowed date (tomorrow's date)
+    const getMinDate = () => {
+        return moment().add(1, 'day').format('YYYY-MM-DD');
+    };
 
     return (
         <div className='w-full'>
@@ -90,7 +100,7 @@ const UserSecuritySetting = () => {
                     <h2 className="text-2xl font-bold mb-4">Deactivate Account</h2>
                     <form onSubmit={handleSubmit}>
                         <fieldset>
-                            <legend className={`${errorMessageForReason !== '' ? 'text-red-600' : ''}`}>{errorMessageForReason == '' ? 'Why are you deactivating?' : errorMessageForReason}</legend>
+                            <legend className={`${(deactivationReason == '' || (deactivationReason === 'other' && otherReason == '')) && errorMessageForReason !== '' ? 'text-red-600' : ''}`}>{(deactivationReason == '' || (deactivationReason === 'other' && otherReason == '')) && errorMessageForReason !== '' ? errorMessageForReason : 'Why are you deactivating?' }</legend>
                             <div className="mb-4">
                                 <label className="grid grid-cols-2">
                                     Privacy Concerns
@@ -101,7 +111,10 @@ const UserSecuritySetting = () => {
                                             value="privacyConcerns"
                                             className="col-span-1"
                                             checked={deactivationReason === 'privacyConcerns'}
-                                            onChange={(e) => setDeactivationReason(e.target.value)}
+                                            onChange={(e) => {
+                                                setDeactivationReason(e.target.value);
+                                                // setErrorMessageForReason('');
+                                            }}
                                         />
                                     </div>
                                 </label>
@@ -114,7 +127,10 @@ const UserSecuritySetting = () => {
                                             value="notUseful"
                                             className="col-span-1"
                                             checked={deactivationReason === 'notUseful'}
-                                            onChange={(e) => setDeactivationReason(e.target.value)}
+                                            onChange={(e) => {
+                                                setDeactivationReason(e.target.value);
+                                                // setErrorMessageForReason('');
+                                            }}
                                         />
                                     </div>
                                 </label>
@@ -127,7 +143,10 @@ const UserSecuritySetting = () => {
                                             value="other"
                                             className=""
                                             checked={deactivationReason === 'other'}
-                                            onChange={(e) => setDeactivationReason(e.target.value)}
+                                            onChange={(e) => {
+                                                setDeactivationReason(e.target.value);
+                                                
+                                            }}
                                         />
                                     </div>
                                 </label>
@@ -137,16 +156,23 @@ const UserSecuritySetting = () => {
                                     placeholder="Please specify (if 'Other')"
                                     className="w-full p-2 border border-gray-300 rounded-md"
                                     value={otherReason}
-                                    onChange={(e) => setOtherReason(e.target.value)}
+                                    onChange={(e) => {
+                                        setOtherReason(e.target.value);
+                                        // setErrorMessageForReason('');
+                                    }}
                                 />
                             )}
                             <div className="mb-4">
-                                <label className="block mb-2">When do you want to reactivate your account?</label>
+                                <label className={`${errorMessageForDate !== '' && reactivationDate == '' ? 'text-red-600' : ''}`}>{ reactivationDate == '' && errorMessageForDate !== '' ? errorMessageForDate : 'When do you want to reactivate your account?' }</label>
                                 <input
                                     type="date"
                                     className="w-full p-2 border border-gray-300 rounded-md"
                                     value={reactivationDate}
-                                    onChange={(e) => setReactivationDate(e.target.value)}
+                                    onChange={(e) => {
+                                        setReactivationDate(e.target.value);
+                                        setErrorMessageForDate('');
+                                    }}
+                                    min={getMinDate()} // validate the date
                                 />
                             </div>
                         </fieldset>
@@ -165,7 +191,7 @@ const UserSecuritySetting = () => {
                 </div>
 
                 {/* Deactivation Confirmation Dialog */}
-                {open && (
+                {open && (deactivationReason == 'other' ? otherReason !== '' : deactivationReason !== '') && reactivationDate !== '' && (
                     <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
                         <div className="bg-white rounded-lg p-6">
                             <h3 className="text-lg font-bold mb-4">Deactivate Account</h3>
