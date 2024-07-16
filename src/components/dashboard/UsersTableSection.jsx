@@ -16,6 +16,7 @@ const UsersTableSection = ({ usersList }) => {
     const [open, setOpen] = useState(false);
     const [deactivateList,setDeactivateList] = useState([]);
     const [selectedUser, setSelectedUser] = useState(null);
+    const [searchQuery, setSearchQuery] = useState('');
 
     // validation with yup
     const deactivationSchema = Yup.object().shape({
@@ -126,6 +127,21 @@ const UsersTableSection = ({ usersList }) => {
         return true;
     };
 
+    // get filter user list
+    const getFilteredUserList = () => {
+        if(!searchQuery){
+            return usersList;
+        }
+
+        // for filtered
+        const filteredUser = usersList.filter(user => user.userName.toLowerCase() === searchQuery.toLowerCase());
+
+        // for remaining
+        const remainingUsers = usersList.filter(user => user.userName.toLowerCase() !== searchQuery.toLowerCase());
+
+        return [...filteredUser,...remainingUsers];
+    };
+
     const RoleClassNameCreator = (Roles) => {
         let className = 'flex justify-center w-50 py-1 text-white rounded-3xl ';
         if (Roles.includes('ADMIN')) {
@@ -139,6 +155,18 @@ const UsersTableSection = ({ usersList }) => {
     return (
         <div className='bg-white p-2 rounded-md'>
             <h1 className='text-xl font-bold'>Users Table</h1>
+
+            {/* Search Input */}
+            <div className='mb-4'>
+                <input
+                    type='text'
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder='Search by username...'
+                    className='w-full p-2 border rounded-md mt-4 mb-2'
+                />
+            </div>
+
             <div className='grid grid-cols-7 px-2 my-1 text-lg font-semibold border border-gray-300 rounded-md'>
                 <div>No</div>
                 <div>User Name</div>
@@ -149,7 +177,7 @@ const UsersTableSection = ({ usersList }) => {
                 <div className='flex justify-center'>Deactivate</div>
             </div>
             {
-                usersList.map((user, index) => (
+                getFilteredUserList().map((user, index) => (
                     <div
                         key={index}
                         className='grid grid-cols-7 px-2 h-12 my-1 border border-gray-200 rounded-md'
