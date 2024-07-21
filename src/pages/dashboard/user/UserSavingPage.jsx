@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import axiosInstance from '../../../utils/axiosInstance';
+import { jsPDF } from 'jspdf';
+import html2canvas from 'html2canvas';
 
 const UserSavingPage = () => {
     const [amount, setAmount] = useState('');
@@ -16,15 +18,13 @@ const UserSavingPage = () => {
         e.preventDefault();
         const savingData = {
             amount: parseFloat(amount),
-            bankName:bank ,
-            description:description,
-            date :date,
-            userName :"menaka"
+            bankName: bank,
+            description: description,
+            date: date,
+            userName: "menaka"
         };
         try {
-           const result =await axiosInstance.post('/SavingView', savingData);
-           
-            // setSavingDetails([...savingDetails, savingData]);
+            const result = await axiosInstance.post('/SavingView', savingData);
             setAmount('');
             setBank('');
             setDescription('');
@@ -39,14 +39,13 @@ const UserSavingPage = () => {
     const handleFetch = async (e) => {
         e.preventDefault();
 
-       const  modle = {
-        bankName:filterBank,
-        startDate: startDate,
-        endDate:endDate,
-    };
+        const model = {
+            bankName: filterBank,
+            startDate: startDate,
+            endDate: endDate,
+        };
         try {
-            const response = await axiosInstance.post('/SavingView/GetSavingDetails', modle);
-            console.log(response)
+            const response = await axiosInstance.post('/SavingView/GetSavingDetails', model);
             setSavingDetails(response.data);
             setIsModalOpen(false); // Close modal after fetching data
         } catch (error) {
@@ -55,9 +54,25 @@ const UserSavingPage = () => {
         }
     };
 
+    const generatePDF = async () => {
+        const doc = new jsPDF();
+        const tableElement = document.getElementById('saving-details-table');
+
+        if (tableElement) {
+            const canvas = await html2canvas(tableElement);
+            const imgData = canvas.toDataURL('image/png');
+            const imgProps = doc.getImageProperties(imgData);
+            const pdfWidth = doc.internal.pageSize.getWidth();
+            const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+
+            doc.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+            doc.save('SavingDetails.pdf');
+        }
+    };
+
     return (
         <div className="pageTemplate2 p-4">
-            <h1 className="text-4xl font-bold text-center mb-6">Saving Page</h1>
+            <h1 className='text-4xl md:text-6xl font-bold text-center pt-6 text-black'>Saving Page</h1>
             <div className="bg-white p-6 rounded-lg shadow-lg">
                 <form onSubmit={handleSubmit} className="mb-6">
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
@@ -126,20 +141,22 @@ const UserSavingPage = () => {
                     </div>
                 </form>
                 {savingDetails.length > 0 && (
-                    <div className="overflow-x-auto">
-                        <table className="min-w-full bg-white border border-gray-200">
-                            <thead>
-                                <tr>
-                                    <th className="py-2 border-b">Bank</th>
-                                    <th className="py-2 border-b">Date</th>
-                                    <th className="py-2 border-b">Amount</th>
+                    <div className="mt-10 ml-4">
+                         <h2 style={{textAlign: 'center'}} >{bank}  Summary Report</h2>
+                          <div>&nbsp;</div>
+                             
+                        
+                        <table id="saving-details-table" className="min-w-full  border  border-slate-100">
+                            <thead className="bg-teal-200">
+                                <tr >
+                                    <th className="py-2 px-4 border-b">Date</th>
+                                    <th className="py-2 px-4 border-b">Amount</th>
                                     <th className="py-2 border-b">Description</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {savingDetails.map((detail, index) => (
                                     <tr key={index}>
-                                        <td className="py-2 border-b px-4">{detail.bank}</td>
                                         <td className="py-2 border-b px-4">{new Date(detail.date).toLocaleDateString()}</td>
                                         <td className="py-2 border-b px-4">${detail.amount.toFixed(2)}</td>
                                         <td className="py-2 border-b px-4">{detail.description}</td>
@@ -147,17 +164,25 @@ const UserSavingPage = () => {
                                 ))}
                             </tbody>
                         </table>
+                        <button
+                            type="button"
+                            onClick={generatePDF}
+                            className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-green-700 mb-4 mt-4 "
+                        >
+                             PDF
+                        </button>
                     </div>
+                    
                 )}
             </div>
 
             {/* Modal for fetching details */}
             {isModalOpen && (
-                <div className="fixed z-10 inset-0 overflow-y-auto">
+                <div className="fixed z-10 inset-0 overflow-y-auto ">
                     <div className="flex items-center justify-center min-h-screen px-4">
-                        <div className="bg-white rounded-lg overflow-hidden shadow-xl transform transition-all sm:max-w-lg sm:w-full">
+                        <div className="bg-black rounded-lg overflow-hidden shadow-xl transform transition-all sm:max-w-lg sm:w-full">
                             <div className="bg-white p-6">
-                                <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">Filter Saving Details</h3>
+                                <h3 className="text-lg leading-6 font-medium text-gray-900 mb-3 ml-40">Filter Saving Details</h3>
                                 <form onSubmit={handleFetch}>
                                     <div className="mb-4">
                                         <label className="block text-gray-700">Bank</label>

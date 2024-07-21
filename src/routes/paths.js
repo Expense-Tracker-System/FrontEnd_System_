@@ -1,3 +1,4 @@
+
 export const PATH_PUBLIC = {
     home: '/',
     register: '/user/register',
