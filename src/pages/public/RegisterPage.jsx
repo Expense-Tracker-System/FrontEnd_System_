@@ -7,12 +7,13 @@ import useAuth from '../../hooks/useAuth.hook';
 import Button from '../../components/general/Button';
 import { toast } from 'react-hot-toast';
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { PATH_PUBLIC } from '../../routes/paths';
+import { Link, useLocation } from 'react-router-dom';
+import { PATH_DASHBOARD_ADMIN, PATH_PUBLIC } from '../../routes/paths';
 
 const RegisterPage = () => {
     const [loading, setLoading] = useState(false);
     const { register } = useAuth();
+    const location = useLocation();
 
     const registerSchema = Yup.object().shape({
         firstName: Yup.string().required('First Name is required'),
@@ -106,7 +107,7 @@ const RegisterPage = () => {
 
                 <div className='px-4 mt-2 mb-6 w-9/12 flex gap-2'>
                     <h1>Already Have an account?</h1>
-                    <Link to={PATH_PUBLIC.login} className='text-[#07271f] border border-[#07271f] hover:shadow-[0_0_5px_2px_#9bf2c5] px-3 rounded-2xl duration-200'>Login</Link>                                                     
+                    <Link to={ PATH_PUBLIC.login } className='text-[#07271f] border border-[#07271f] hover:shadow-[0_0_5px_2px_#9bf2c5] px-3 rounded-2xl duration-200'>Login</Link>                                                     
                 </div>
 
                 <div className='flex justify-center items-center gap-4 mt-6'>

@@ -25,7 +25,7 @@ const Sidebar = () => {
             </div>
 
             {
-                user.roles == "Admin" ? (
+                user.roles.includes("ADMIN") ? (
                     <div className='flex flex-col items-stretch gap-3'>
                         <Button
                             label='Users Management'

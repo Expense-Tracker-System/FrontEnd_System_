@@ -1,0 +1,37 @@
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+}
+
+.input-field, .report-button {
+    flex-grow: 1;
+    margin: 0 10px; /* Provides spacing between elements */
+}
+
+.report-button {
+    background-color: #90ee90; /* Light green background */
+    color: white; /* White text */
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.report-button:hover {
+    background-color: #76c376; /* Darker green on hover */
+}
+
+.message {
+    color: red;
+    font-size: 18px;
+    text-align: center;
+    font-weight: bold;
+}
+
+.centered-text {
+    text-align: center;
+    margin-top: 20px;
+    margin-bottom: 20px; /* Spacing before the chart */
+}

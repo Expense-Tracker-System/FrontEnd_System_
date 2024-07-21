@@ -37,6 +37,7 @@ const GlobalRouter = () => {
         <Routes>
             <Route path={PATH_PUBLIC.register} element={<RegisterPage />} />
             <Route path={PATH_PUBLIC.login} element={<LoginPage />} />
+            <Route path={PATH_DASHBOARD_ADMIN.login} element={<LoginPage />} />
             <Route path={PATH_PUBLIC.unauthorized} element={<UnauthorizedPage />} />
 
             {/* <Route path='' element /> */}
@@ -72,14 +73,13 @@ const GlobalRouter = () => {
                     <Route path={PATH_DASHBOARD_ADMIN.remender} element={<AdminRemenderPage />} />
                     <Route path={PATH_DASHBOARD_ADMIN.setting} element={<AdminSettingPage />} />
                 </Route>
-
-            </Route>
+             </Route>
 
             {/* Catch all 404 */}
             <Route path={PATH_PUBLIC.notFound} element={<NotFoundPage />} />
             <Route path='*' element={<Navigate to={PATH_PUBLIC.notFound} replace />} />
-        </Routes>
-    )
-}
+    </Routes>
+  );
+};
 
 export default GlobalRouter;
