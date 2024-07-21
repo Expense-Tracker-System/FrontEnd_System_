@@ -88,12 +88,12 @@ const CreateOrganizationPage = () => {
         fullWidth
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
-        sx={{ marginBottom: '20px' }}
+        sx={{ marginBottom: '20px', }}
         InputProps={{
           endAdornment: (
-            <IconButton>
-              <SearchIcon />
-            </IconButton>
+          
+              <SearchIcon style={{}} />
+            
           )
         }}
       />
@@ -107,6 +107,7 @@ const CreateOrganizationPage = () => {
                   <ListItemText primary={user_.userName} />
                   <ListItemSecondaryAction>
                     <IconButton edge="end" onClick={() => handleSelectUser(user_)}>
+                      
                       <CheckIcon />
                     </IconButton>
                   </ListItemSecondaryAction>
@@ -115,9 +116,20 @@ const CreateOrganizationPage = () => {
             </List>
           )}
 
-          <Button variant="contained" color="success" onClick={handleCreateOrganization} sx={{ bgcolor: 'black', width: '100%', height: '40px', marginTop: '20px' }}>
-            Create
-          </Button>
+<Box sx={{ display: 'flex', justifyContent: 'center', width: '100%', marginTop: '20px' }}>
+  <Button 
+    variant="contained" 
+    color="success" 
+    onClick={handleCreateOrganization} 
+    sx={{ 
+      bgcolor: 'black', 
+      width: '500px', 
+      height: '40px'
+    }}
+  >
+    Create
+  </Button>
+</Box>
         </>
       )}
     </Box>

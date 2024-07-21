@@ -1,58 +1,80 @@
-import React, { useState } from 'react';
-import { TextField, Button, Container, Grid, Typography, Paper, AppBar, Toolbar, Box } from '@mui/material';
+import React, { useState, useEffect } from 'react';
+import { TextField, Button, Container, Grid, Typography, Paper, AppBar, Box } from '@mui/material';
 import axios from 'axios';
+import { toast } from "react-hot-toast";
 
 const GetEIDetails = () => {
-    const [organizationIncome, setOrganizationIncome] = useState({ description: '', amount: '', orgId: '' });
-    const [organizationExpense, setOrganizationExpense] = useState({ description: '', amount: '', orgId: '' });
+    const [organizationIncome, setOrganizationIncome] = useState({ description: '', amount: '' });
+    const [organizationExpense, setOrganizationExpense] = useState({ description: '', amount: '' });
     const [errors, setErrors] = useState({ income: {}, expense: {} });
-    const orgid = new URLSearchParams(location.search).get('id');
+    const [organizationId, setOrganizationId] = useState(null);
+
+    useEffect(() => {
+        const orgId = new URLSearchParams(window.location.search).get('id');
+        setOrganizationId(orgId ? parseInt(orgId) : null);
+    }, []);
 
     const handleChange = (e, type) => {
         const { name, value } = e.target;
         if (type === 'income') {
-            setOrganizationIncome({ ...organizationIncome, [name]: value, orgId: orgid });
+            setOrganizationIncome(prev => ({ ...prev, [name]: value }));
         } else {
-            setOrganizationExpense({ ...organizationExpense, [name]: value, orgId: orgid });
+            setOrganizationExpense(prev => ({ ...prev, [name]: value }));
         }
     };
 
     const validate = (type) => {
         let tempErrors = { income: {}, expense: {} };
-        if (type === 'income') {
-            if (!organizationIncome.description) tempErrors.income.description = "Description is required.";
-            if (!organizationIncome.amount) tempErrors.income.amount = "Amount is required.";
-        } else {
-            if (!organizationExpense.description) tempErrors.expense.description = "Description is required.";
-            if (!organizationExpense.amount) tempErrors.expense.amount = "Amount is required.";
-        }
+        const data = type === 'income' ? organizationIncome : organizationExpense;
+        
+        if (!data.description) tempErrors[type].description = "Description is required.";
+        if (!data.amount) tempErrors[type].amount = "Amount is required.";
+        else if (isNaN(parseFloat(data.amount))) tempErrors[type].amount = "Amount must be a number.";
+        else if (parseFloat(data.amount) <= 0) tempErrors[type].amount = "Amount must be greater than zero.";
 
-        setErrors(tempErrors);
-        return type === 'income'
-            ? Object.values(tempErrors.income).every(x => x === "")
-            : Object.values(tempErrors.expense).every(x => x === "");
+        setErrors(prev => ({ ...prev, [type]: tempErrors[type] }));
+        return Object.values(tempErrors[type]).every(x => x === "");
     };
 
     const handleSubmit = async (type) => {
-        if (validate(type)) {
+        if (validate(type) && organizationId) {
             try {
-                if (type === 'income') {
-                    await axios.post('https://localhost:7026/api/OrganizationIncome', organizationIncome);
-                    console.log('Organization Income:', organizationIncome);
+                const data = type === 'income' ? organizationIncome : organizationExpense;
+                const formattedData = {
+                    amount: parseFloat(data.amount),
+                    description: data.description,
+                    organizationId: organizationId
+                };
+
+                const response = await axios.post(
+                    `https://localhost:7026/api/Organization${type.charAt(0).toUpperCase() + type.slice(1)}`,
+                    formattedData
+                );
+
+                if (response.status === 200) {
+                    console.log(`Organization ${type}:`, response.data);
+                    if (type === 'income') {
+                        setOrganizationIncome({ description: '', amount: '' });
+                        toast.success("Income added successfully");
+                    } else {
+                        setOrganizationExpense({ description: '', amount: '' });
+                        toast.success("Expense added successfully");
+                    }
                 } else {
-                    await axios.post('https://localhost:7026/api/OrganizationExpense', organizationExpense);
-                    console.log('Organization Expense:', organizationExpense);
+                    throw new Error('Unexpected response status');
                 }
-                alert(`${type.charAt(0).toUpperCase() + type.slice(1)} added successfully.`);
             } catch (error) {
                 console.error('Error adding data:', error);
-                alert(`Failed to add ${type}.`);
+                toast.error("An Error occurred.");
+                alert(`Failed to add ${type}. ${error.response?.data?.message || error.message}`);
             }
+        } else if (!organizationId) {
+            alert('Organization ID is missing. Please check the URL.');
         }
     };
 
     const renderIncomeExpensePage = () => (
-        <Container maxWidth="md" sx={{ mt: 5 }}>
+        <Container maxWidth="xl" sx={{ mt: 5 }}>
             <Grid container spacing={3} justifyContent="center">
                 <Grid item xs={12} md={5}>
                     <Paper elevation={3} sx={{ padding: 3 }}>
@@ -70,19 +92,21 @@ const GetEIDetails = () => {
                         <TextField
                             name="amount"
                             label="Amount"
+                            type="number"
                             value={organizationIncome.amount}
                             onChange={(e) => handleChange(e, 'income')}
                             error={!!errors.income.amount}
                             helperText={errors.income.amount}
                             fullWidth
                             margin="normal"
+                            inputProps={{ step: "0.01" }}
                         />
                         <Button
                             variant="contained"
                             color="success"
                             onClick={() => handleSubmit('income')}
                             fullWidth
-                            sx={{ mt: 2 ,backgroundColor: 'black', color: 'white'}}
+                            sx={{ mt: 2, backgroundColor: 'black', color: 'white' }}
                         >
                             Add Organization Income
                         </Button>
@@ -104,19 +128,21 @@ const GetEIDetails = () => {
                         <TextField
                             name="amount"
                             label="Amount"
+                            type="number"
                             value={organizationExpense.amount}
                             onChange={(e) => handleChange(e, 'expense')}
                             error={!!errors.expense.amount}
                             helperText={errors.expense.amount}
                             fullWidth
                             margin="normal"
+                            inputProps={{ step: "0.01" }}
                         />
                         <Button
                             variant="contained"
                             color="success"
                             onClick={() => handleSubmit('expense')}
                             fullWidth
-                            sx={{ mt: 2 ,backgroundColor: 'black', color: 'white'}}
+                            sx={{ mt: 2, backgroundColor: 'black', color: 'white' }}
                         >
                             Add Organization Expense
                         </Button>
@@ -129,13 +155,11 @@ const GetEIDetails = () => {
     return (
         <Container>
             <AppBar position="static">
-                <Toolbar>
-                    <Box sx={{ flexGrow: 1, display: 'flex', justifyContent: 'center' }}>
-                        <Typography variant="h6">
-                            Add Incomes and Expenses Here (Only Organization Leader Can Apply This Form.)
-                        </Typography>
-                    </Box>
-                </Toolbar>
+                <Box sx={{ flexGrow: 1, display: 'flex', justifyContent: 'center', color: 'black', backgroundColor:'white', }}>
+                    <Typography variant="h6">
+                        Organization Income and Expense
+                    </Typography>
+                </Box>
             </AppBar>
             {renderIncomeExpensePage()}
         </Container>

@@ -5,6 +5,7 @@ import axios from 'axios';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import '../ReportComponents/ReportPage.css';
+import { toast } from "react-hot-toast";
 
 function ReportPage() {
     const [startDate, setStartDate] = useState(null);
@@ -23,7 +24,9 @@ function ReportPage() {
 
     const fetchReportData = async () => {
         if (!startDate || !endDate) {
-            alert('Please select both start and end dates.');
+           // alert('Please select both start and end dates.');
+            toast.error("Please select both start and end dates.");
+
             return;
         }
         if (!validateDates()) {
@@ -39,6 +42,7 @@ function ReportPage() {
         try {
             const response = await axios.get(url);
             setReportData(response.data);
+            toast.success("Report created Successfully");
         } catch (error) {
             console.error('Failed to fetch:', error);
             alert(`Failed to fetch data: ${error.message}`);

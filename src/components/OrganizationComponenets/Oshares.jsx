@@ -1,16 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { ScatterChart, Scatter, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { Box } from '@mui/material';
+import { useSearchParams } from 'react-router-dom';
 
-const Oshares = ({ organizationId }) => {
+const Oshares = () => {
+    const [searchParams] = useSearchParams();
+    const organizationId = searchParams.get('id');
     const [data, setData] = useState([]);
    
-    
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await axios.get(`https://localhost:7026/api/UserOrganizations/${orgid}`);
+                const response = await axios.get(`https://localhost:7026/api/UserOrganizations/${organizationId}`);
                 setData(response.data);
             } catch (error) {
                 console.error('Error fetching data:', error);
@@ -29,18 +31,29 @@ const Oshares = ({ organizationId }) => {
         <Box sx={{ width: '100%', height: 500 }}>
             <h3>Shares Distribution</h3>
             <ResponsiveContainer width="100%" height="100%">
-                <ScatterChart margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
+                <BarChart
+                    data={formattedData}
+                    margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                >
                     <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis type="category" dataKey="userName" name="User Name" />
-                    <YAxis type="number" dataKey="userShare" name="User Share" unit="%" />
-                    <Tooltip cursor={{ strokeDasharray: '3 3' }} />
+                    <XAxis 
+                        dataKey="userName" 
+                        tick={{ fontWeight: 'bold' }} 
+                        label={{ value: 'User Name', position: 'insideBottom', fontWeight: 'bold' }}
+                    />
+                    <YAxis 
+                        label={{ value: 'User Share (%)', angle: -90, position: 'insideLeft', fontWeight: 'bold' }}
+                        domain={[0, 100]}
+                        tickFormatter={(tick) => `${tick}%`}
+                        tick={{ fontWeight: 'bold' }}
+                    />
+                    <Tooltip formatter={(value) => `${value}%`} />
                     <Legend />
-                    <Scatter name="Shares Distribution" data={formattedData} fill="#8884d8" />
-                </ScatterChart>
+                    <Bar dataKey="userShare" fill="#000000" name="User Share" maxBarSize={50} />
+                </BarChart>
             </ResponsiveContainer>
         </Box>
     );
 };
 
 export default Oshares;
-

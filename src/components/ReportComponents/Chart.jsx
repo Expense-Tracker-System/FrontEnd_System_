@@ -2,14 +2,34 @@ import React, { useState, useEffect } from 'react';
 import { Bar, Pie } from 'react-chartjs-2';
 import axios from 'axios';
 import DatePicker from 'react-datepicker';
-import "react-datepicker/dist/react-datepicker.css";
-import './chart.css';  
+import 'react-datepicker/dist/react-datepicker.css';
+import '../ReportComponents/chart.css';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+  ArcElement,
+} from 'chart.js';
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+  ArcElement
+);
 
 const Chart = () => {
-    const [startDate, setStartDate] = useState(new Date(new Date().setDate(new Date().getDate() - 30))); 
-    const [endDate, setEndDate] = useState(new Date()); // Today's date
+    const [startDate, setStartDate] = useState(new Date(new Date().setDate(new Date().getDate() - 30)));
+    const [endDate, setEndDate] = useState(new Date());
     const [chartData, setChartData] = useState({});
-    const [chartType, setChartType] = useState('bar'); // Default to 'bar' chart
+    const [chartType, setChartType] = useState('bar');
 
     const fetchData = async () => {
         try {
@@ -21,52 +41,70 @@ const Chart = () => {
             });
 
             const { monthlyIncomes, monthlyExpenses } = response.data;
-            const labels = [];
-            const incomesData = [];
-            const expensesData = [];
-
-            monthlyIncomes.forEach(monthlyIncome => {
-                monthlyIncome.items.forEach(item => {
-                    labels.push(`${monthlyIncome.year}-${monthlyIncome.month}-${item.category}`);
-                    incomesData.push(item.amount);
-                });
-            });
-
-            monthlyExpenses.forEach(monthlyExpense => {
-                monthlyExpense.items.forEach(item => {
-                    labels.push(`${monthlyExpense.year}-${monthlyExpense.month}-${item.category}`);
-                    expensesData.push(item.amount);
-                });
-            });
-
-            setChartData({
-                labels: labels,
-                datasets: [
-                    {
-                        label: 'Expenses',
-                        data: incomesData,
-                        backgroundColor: '#32CD32', // Dashboard Green
-                    },
-                    {
-                        label: 'Incomes',
-                        data: expensesData,
-                        backgroundColor: 'rgba(0, 0, 0, 1)', // Hard Black
-                    }
-                ]
-            });
+            
+            const processedData = processChartData(monthlyIncomes, monthlyExpenses);
+            setChartData(processedData);
         } catch (error) {
             console.error('Failed to fetch data:', error);
             alert('Failed to fetch data');
         }
     };
 
-    useEffect(() => {
-        fetchData(); // Fetch data initially and on date changes
-    }, [startDate, endDate]);
+    const processChartData = (incomes, expenses) => {
+        const data = {
+            labels: [],
+            datasets: [
+                {
+                    label: 'Income',
+                    data: [],
+                   
+                    backgroundColor: 'rgba(0, 128, 0, 1)',
+                },
+                {
+                    label: 'Expense',
+                    data: [],
+                    backgroundColor: 'rgba(0, 0, 0, 1)',
+                   
+                }
+            ]
+        };
 
-    const toggleChartType = () => {
-        setChartType(prev => (prev === 'bar' ? 'pie' : 'bar'));
+        const months = [...new Set([...incomes.map(i => `${i.year}-${i.month}`), ...expenses.map(e => `${e.year}-${e.month}`)])].sort();
+
+        months.forEach(month => {
+            const [year, monthNum] = month.split('-');
+            
+            const monthIncome = incomes.find(i => i.year === parseInt(year) && i.month === parseInt(monthNum));
+            const monthExpense = expenses.find(e => e.year === parseInt(year) && e.month === parseInt(monthNum));
+
+            if (monthIncome) {
+                monthIncome.items.forEach(item => {
+                    data.labels.push(`${month} ${item.category}`);
+                    data.datasets[0].data.push(item.amount);
+                    data.datasets[1].data.push(0);
+                });
+            }
+
+            if (monthExpense) {
+                monthExpense.items.forEach(item => {
+                    const existingLabelIndex = data.labels.indexOf(`${month} ${item.category}`);
+                    if (existingLabelIndex !== -1) {
+                        data.datasets[1].data[existingLabelIndex] = item.amount;
+                    } else {
+                        data.labels.push(`${month} ${item.category}`);
+                        data.datasets[0].data.push(0);
+                        data.datasets[1].data.push(item.amount);
+                    }
+                });
+            }
+        });
+
+        return data;
     };
+
+    useEffect(() => {
+        fetchData();
+    }, [startDate, endDate]);
 
     const options = {
         responsive: true,
@@ -75,10 +113,11 @@ const Chart = () => {
         plugins: {
             legend: {
                 position: 'top',
-            }
-        },
-        layout: {
-            padding: 20
+            },
+            title: {
+                display: true,
+                text: 'Monthly Income and Expenses by Category',
+            },
         },
         scales: {
             x: {
@@ -89,22 +128,52 @@ const Chart = () => {
                 }
             },
             y: {
-                beginAtZero: true
+                beginAtZero: true,
+                title: {
+                    display: true,
+                    text: 'Amount'
+                }
             }
         }
     };
 
+    const toggleChartType = () => {
+        setChartType(prev => prev === 'bar' ? 'pie' : 'bar');
+    };
+
     return (
         <div>
-            <div className="container">
-                <div className="input-container">
-                    <DatePicker className="input-field" selected={startDate} onChange={date => setStartDate(date)} dateFormat="yyyy/MM/dd" />
-                    <DatePicker className="input-field" selected={endDate} onChange={date => setEndDate(date)} dateFormat="yyyy/MM/dd" />
-                    <button className="report-button" onClick={toggleChartType}>
-                        Switch Chart
-                    </button>
-                </div>
+        <div style={{ 
+            padding: '20px', 
+            width: '800px', 
+            margin: '0 auto', 
+            backgroundColor: '#f9f9f9', 
+            boxShadow: '0 0 10px #0000001a', 
+            borderRadius: '8px' 
+        }}>
+           <div style={{ 
+    display: 'flex', 
+    justifyContent: 'space-between', 
+    alignItems: 'center', 
+    marginBottom: '20px', 
+    marginTop: '20px' 
+}}>
+                <DatePicker
+                    selected={startDate}
+                    onChange={date => setStartDate(date)}
+                    dateFormat="yyyy/MM/dd"
+                />
+                <DatePicker
+                    selected={endDate}
+                    onChange={date => setEndDate(date)}
+                    dateFormat="yyyy/MM/dd"
+                />
+                <button className="report-button" onClick={toggleChartType}>
+                    Switch to {chartType === 'bar' ? 'Pie' : 'Bar'} Chart
+                </button>
             </div>
+            </div>
+            <div>
             {Object.keys(chartData).length ? (
                 <>
                     <h2 className="centered-text">Financial Data Chart</h2>
@@ -117,6 +186,7 @@ const Chart = () => {
             ) : (
                 <p className="message">Please generate Charts to see data here.</p>
             )}
+        </div>
         </div>
     );
 };
