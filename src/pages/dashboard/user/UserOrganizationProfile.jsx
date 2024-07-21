@@ -25,7 +25,7 @@ function UserOrganizationProfile() {
        <TakeAmount/>
       </div>
       
-        <div style={{ paddingLeft: '250px' }}>
+        <div style={{ paddingLeft: '250px',marginTop:'10px' }}>
           <Oshares />
        </div>
 

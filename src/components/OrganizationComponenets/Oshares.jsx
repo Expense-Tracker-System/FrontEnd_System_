@@ -39,7 +39,7 @@ const Oshares = () => {
                     <XAxis 
                         dataKey="userName" 
                         tick={{ fontWeight: 'bold' }} 
-                        label={{ value: 'User Name', position: 'insideBottom', fontWeight: 'bold' }}
+                        label={{ value: 'User Name', position: 'insideBottom', fontWeight: 'bold',offset: -5 }}
                     />
                     <YAxis 
                         label={{ value: 'User Share (%)', angle: -90, position: 'insideLeft', fontWeight: 'bold' }}
