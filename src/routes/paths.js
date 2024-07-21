@@ -1,7 +1,8 @@
+
 export const PATH_PUBLIC = {
     home: '/',
-    register: '/register',
-    login: '/login',
+    register: '/user/register',
+    login: '/user/login',
     unauthorized: '/unauthorized',
     notFound: '/404',
 }
@@ -22,6 +23,7 @@ export const PATH_DASHBOARD_USER = {
 
 export const PATH_DASHBOARD_ADMIN = {
     home: '/admin',
+    login: '/admin/login',
     dashboard: '/admin/dashboard',
     dashboardAdmin: '/admin/dashboard/admin-dashboard',
     usersManagement: '/admin/dashboard/users-management',
